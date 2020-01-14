@@ -11,9 +11,9 @@ from functools import wraps
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/antho/Documents/api_example/todo.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/antho/Documents/api_example/todo.db'
 
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
 
 
 @app.route('/farmeruser', methods=['POST'])
@@ -23,21 +23,26 @@ def create_user():
 #        return jsonify({'message' : 'Cannot perform that function!'})
     data = request.get_json()
     hashed_password = generate_password_hash(data['password'], method='sha256')
-
-    conn = sqlite3.connect("../datahouse.db")
+    # data={}
+    conn = sqlite3.connect("datahouse.db")
     cursorObj = conn.cursor()
     entities = ((str(uuid.uuid4()),data['address'],data['fname'],hashed_password,data['aadhar'],data['imagelink'],date.today() ,data['phone_no']))
-    # conn.execute("INSERT INTO FARMER VALUES (?,?,?,?,?,?,?,?)",entities)
-    conn.execute("SELECT * FROM FARMER WHERE ADDRESS ==?",("kopar",))
-    vals = cursorObj.fetchone()
-    
-    data = {"X":vals}
+    cursorObj.execute("INSERT INTO FARMER(FARMERID,ADDRESS,FULLNAME,PASSWORD,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?)",entities)
+    # cursorObj.execute("SELECT * FROM FARMER;")
+    # vals = cursorObj.fetchall()
+    # li = []
     # for val in vals:
+    #     li.append(val)
+
+    # data['listads===_x'] = li
+    # data = {"X":vals}
+    # print(vals)
+    # # for val in vals:
     #     print(val)
     conn.commit()
 
-    # return jsonify({'message' : 'New user created!'})
-    return jsonify(data)
+    return jsonify({'message' : 'New user created!'})
+    # return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
