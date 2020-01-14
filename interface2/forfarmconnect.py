@@ -88,7 +88,6 @@ def login():
     if current_user == 'null':
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
-
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     userpassword = current_user[3]
     #xx={}
@@ -109,6 +108,66 @@ def login():
         return jsonify(xx)
 
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+
+#Tushar
+@app.route('/sell_produce',methods=['POST'])
+def sell_produce():
+    pass
+
+#tushar
+@app.route('/buy_produce',methods=['POST'])
+def buy_produce():
+    pass
+
+#rugved
+@app.route('/list_produce',methods=['POST'])
+def list_produce():
+    pass
+
+#vinit
+@app.route('/put_review',methods=['POST'])
+def put_review():
+    pass
+
+#talha
+@app.route('/list_review',methods=['POST'])
+def list_reviews():
+    pass
+
+#talha
+@app.route('/farmer_history',methods=['POST'])
+def farmer_history():
+    pass
+
+
+#vinit
+@app.route('/buyer_history',methods=['POST'])
+def buyer_history():
+    pass
+
+
+# @app.route('/search_produce',methods=['POST'])  TO-BE DONE LATER
+# def search():  #from list produce
+#     pass
+
+#rugved
+@app.route('/category_sort',methods=['POST'])
+def category_sort():
+    pass
+
+
+#rugved
+@app.route('/price_sort',methods=['POST'])
+def price_sort():
+    pass
+
+
+#rugved
+@app.route('/review_sort',methods=['POST'])
+def review_sort():
+    pass
+
 
 
 if __name__ == '__main__':
