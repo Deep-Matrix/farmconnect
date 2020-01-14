@@ -1,7 +1,10 @@
 import sqlite3
 from datetime import datetime
 
-conn = sqlite3.connect('../datahouse.db')
+
+# https://www.lucidchart.com/invitations/accept/d3788697-7d69-4a7a-91b5-88ae39a52165
+
+conn = sqlite3.connect('datahouse.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS TYPES
               (TYPEID INT PRIMARY KEY NOT NULL,
