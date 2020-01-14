@@ -19,7 +19,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-
+        data = request.get_json()
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
 
@@ -41,8 +41,7 @@ def token_required(f):
     return decorated
 
 @app.route('/farmeruser', methods=['POST'])
-@token_required
-def create_user(current_user):
+def create_user():
 #    if not current_user.admin:
 #        return jsonify({'message' : 'Cannot perform that function!'})
     data = request.get_json()
@@ -90,7 +89,7 @@ def login():
 
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     userpassword = current_user[3]
-    #xx={}
+    xx={}
     #xx['1']=userpassword
     #xx['2']=current_user
 
