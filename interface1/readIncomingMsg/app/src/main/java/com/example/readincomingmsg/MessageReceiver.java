@@ -27,7 +27,9 @@ public class MessageReceiver extends BroadcastReceiver {
             String emailBody=smsMessage.getEmailBody();
             String msgBody=smsMessage.getDisplayMessageBody();
             long timeStamp=smsMessage.getTimestampMillis();
+
             String Message=smsMessage.getMessageBody();
+
             mListener.messageReceived(senderPhoneNumber,emailFrom,emailBody,msgBody,timeStamp,Message);
         }
     }
