@@ -19,6 +19,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
              (FARMERID INT PRIMARYKEY NOT NULL,
               ADDRESS CHAR(50) NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
+              PASSWORD CHAR(50) NOT NULL,
               AADHAR CHAR(140) NOT NULL,
               IMAGELINK CHAR(100) NOT NULL,
               DATEJOINED CHAR(12) NOT NULL,
@@ -57,6 +58,7 @@ conn.commit()
 conn.execute('''CREATE TABLE IF NOT EXISTS BUYER
              (BUYERID INT PRIMARYKEY NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
+              PASSWORD CHAR(50) NOT NULL,
               ADDRESS CHAR(150) NOT NULL,
               AADHAR CHAR(12) NOT NULL,
               IMAGELINK CHAR(100) NOT NULL,
