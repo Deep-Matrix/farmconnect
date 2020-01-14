@@ -5,9 +5,9 @@ import requests
 app = Flask(__name__)
 
 
-# @app.route('/sell_produce',methods=['POST'])
-# def sell_produce():
-#     pass
+@app.route('/sell_produce',methods=['POST'])
+def sell_produce():
+    pass
 
 
 @app.route('/buy_produce',methods=['POST'])
@@ -41,7 +41,7 @@ def buyer_history():
     pass
 
 
-# @app.route('/search_produce',methods=['POST'])
+# @app.route('/search_produce',methods=['POST'])  TO-BE DONE LATER
 # def search():  #from list produce
 #     pass
 
