@@ -132,12 +132,37 @@ def put_review():
 #talha
 @app.route('/list_review',methods=['POST'])
 def list_reviews():
-    pass
+    data={}
+    try:
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM QUALITY_REVIEW;")
+        vals = cursorObj.fetchall()
+        list_of_reviews =[]
+        for val in vals:
+            list_of_reviews.append(val)
+        data['reviews'] = list_of_reviews
+    except Exception as e:
+        data['errors'] = str(e)
+    return jsonify(data)
 
 #talha
 @app.route('/farmer_history',methods=['POST'])
 def farmer_history():
-    pass
+    try:
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        data = request.get_json()
+        entities=((data['farmerid']))
+        cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCE_ID=(SELECT PRODUCE_ID FROM FARMER_PRODUCE WHERE FARMER_ID ==?)",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['list'] = li
+    except Exception as e:
+        data['errors'] = str(e)
+    return jsonify(data)
 
 
 #vinit
