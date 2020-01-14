@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-conn = sqlite3.connect('maindata.db')
+conn = sqlite3.connect('../maindata.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
              (USERID INT PRIMARYKEY NOT NULL,
