@@ -11,9 +11,9 @@ from functools import wraps
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/antho/Documents/api_example/todo.db'
+##app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/antho/Documents/api_example/todo.db'
 
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 
 
 @app.route('/farmeruser', methods=['POST'])
@@ -24,12 +24,11 @@ def create_user():
     data = request.get_json()
     hashed_password = generate_password_hash(data['password'], method='sha256')
 
-    conn = sqlite3.connect("../datahouse.db")
-    cursorObj = conn.cursor()
+    conn = sqlite3.connect("datahouse.db")
     entities = ((str(uuid.uuid4()),data['address'],data['fname'],hashed_password,data['aadhar'],data['imagelink'],date.today() ,data['phone_no']))
-    # conn.execute("INSERT INTO FARMER VALUES (?,?,?,?,?,?,?,?)",entities)
-    conn.execute("SELECT * FROM FARMER WHERE ADDRESS ==?",("kopar",))
-    vals = cursorObj.fetchone()
+    cursorObj.execute("INSERT INTO FARMER VALUES (?,?,?,?,?,?,?,?)",entities)
+    #conn.execute("SELECT * FROM FARMER WHERE ADDRESS ==?",("kopar",))
+    #vals = cursorObj.fetchone()
     
     data = {"X":vals}
     # for val in vals:
