@@ -16,7 +16,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS TYPES
 conn.commit() # Checked. OK
 
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
-             (FARMERID INT PRIMARYKEY NOT NULL,
+             (FARMERID INTEGER PRIMARY KEY NOT NULL,
               ADDRESS CHAR(50) NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
               PASSWORD CHAR(50) NOT NULL,
@@ -28,35 +28,22 @@ conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
             )
 conn.commit() # Checked. OK
 
-conn.execute('''CREATE TABLE IF NOT EXISTS PRODUCE
-            (
-              PRODUCEID INT PRIMARY KEY NOT NULL,
-              FARMERID INT NOT NULL,
-              TYPEID INT NOT NULL,
-              QUANTITY INT,
-              COST INT,
-              FOREIGN KEY (FARMERID) REFERENCES FARMER (FARMERID),
-              FOREIGN KEY (TYPEID) REFERENCES TYPES(TYPEID)
-            );'''
-          )
-conn.commit(); # Checked. OK
-
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER_PRODUCE
-             (PRODUCEID INT NOT NULL,
+             (PRODUCEID INTEGER PRIMARY KEY NOT NULL,
               FARMERUSERID INT NOT NULL,
               QUANTITY INT NOT NULL,
+              AVAILABLEQUANTITY INT NOT NULL,
               SOLD BOOLEAN NOT NULL,
               DESCRIPTION CHAR(140) NOT NULL,
               QUALITY_REVIEW INT,
               NO_TIMES_BOUGHT INT NOT NULL,
               FOREIGN KEY (FARMERUSERID) REFERENCES FARMER (FARMERID)
-              FOREIGN KEY (PRODUCEID) REFERENCES PRODUCE (PRODUCEID)
               );'''
             ) # Checked. OK
 conn.commit()
 
 conn.execute('''CREATE TABLE IF NOT EXISTS BUYER
-             (BUYERID INT PRIMARYKEY NOT NULL,
+             (BUYERID INTEGER PRIMARY KEY NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
               PASSWORD CHAR(50) NOT NULL,
               ADDRESS CHAR(150) NOT NULL,
