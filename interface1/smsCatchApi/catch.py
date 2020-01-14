@@ -16,29 +16,32 @@ def getFarmerFromPhone(conn, phno):
 # LINE4: <Description(if any)>
 
 def postdetails(phno, details):
-    path = os.path.realpath('datahouse.db')
-    print(path)
-    conn = sqlite3.connect(path)
-    farmerid = getFarmerFromPhone(conn, phno)
-    form = details.splitlines()
-    if form:
-        producename = form[0]
-        quantityInQuintals = form[1]
-        cost = form[2]
-        availableQty = quantityInQuintals
-        if len(form) > 2:
-            description = form[3]
+    try:
+        path = os.path.realpath('datahouse.db')
+        print(path)
+        conn = sqlite3.connect(path)
+        farmerid = getFarmerFromPhone(conn, phno)
+        form = details.splitlines()
+        if form:
+            producename = form[0]
+            quantityInQuintals = form[1]
+            cost = form[2]
+            availableQty = quantityInQuintals
+            if len(form) > 2:
+                description = form[3]
+            else:
+                description = ""
+            # produceid = getProduceIdfromName(producename)
+            sold = "False"
+            QualityReviewRating = "2.5"
+            TimesBought = "0"
+            entities = (farmerid, quantityInQuintals, availableQty, sold, description, QualityReviewRating, TimesBought, cost, producename)
+            cursor_obj = conn.cursor()
+            cursor_obj.execute("INSERT INTO FARMER_PRODUCE(FARMERUSERID, QUANTITY, AVAILABLEQUANTITY, SOLD, DESCRIPTION, QUALITY_REVIEW, NO_TIMES_BOUGHT, COST, PRODUCENAME) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", entities)
+            conn.commit()
         else:
-            description = ""
-        # produceid = getProduceIdfromName(producename)
-        sold = "False"
-        QualityReviewRating = "2.5"
-        TimesBought = "0"
-        entities = (farmerid, quantityInQuintals, availableQty, sold, description, QualityReviewRating, TimesBought, cost)
-        cursor_obj = conn.cursor()
-        cursor_obj.execute("INSERT INTO FARMER_PRODUCE(FARMERUSERID, QUANTITY, AVAILABLEQUANTITY, SOLD, DESCRIPTION, QUALITY_REVIEW, NO_TIMES_BOUGHT, COST) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", entities)
-        conn.commit()
-    else:
+            return
+    except:
         return
 
 @app.route('/post')
