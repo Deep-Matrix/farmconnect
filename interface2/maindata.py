@@ -33,6 +33,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS FARMER_PRODUCE
               FARMERUSERID INT NOT NULL,
               QUANTITY INT NOT NULL,
               AVAILABLEQUANTITY INT NOT NULL,
+              COST INT,
               SOLD BOOLEAN NOT NULL,
               DESCRIPTION CHAR(140) NOT NULL,
               QUALITY_REVIEW INT,
