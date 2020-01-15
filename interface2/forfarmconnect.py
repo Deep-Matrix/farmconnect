@@ -8,6 +8,8 @@ import jwt
 import datetime
 from functools import wraps
 
+from apis import streamproduce
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
@@ -196,9 +198,31 @@ def price_sort():
 def review_sort():
     pass
 
-@app.route('/streamproduce', methods=['POST'])
+# This api will be used to display available produce.
+# It will accept one parameter
+# reqnum -> number of request. (this is because it will send 10 responses eachtime.)
+# return:
+# {
+#     "1":{
+#         "produceid": ""
+#         "farmername": ""
+#         "availableqty": "" (in quintals)
+#         "cost": "" (per quintal)
+#         "isSold": "True/False"
+#         "description": ""
+#         "qualityreview": ""
+#         "notimebought": ""
+#     }
+#     "2":{
+#         same
+#     }
+#     so on (till 10)
+# } 
+
+@app.route('/streamproduce')
 def streamproduce():
-    pass
+    reqnum = request.args.get('reqnum')
+    return jsonify(streamproduce.stream(reqnum)
 
 if __name__ == '__main__':
     app.run(debug=True)
