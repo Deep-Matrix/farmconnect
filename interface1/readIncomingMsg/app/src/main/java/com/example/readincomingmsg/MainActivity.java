@@ -1,6 +1,8 @@
 package com.example.readincomingmsg;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,7 +12,10 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -45,6 +50,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements MessageListener {
 
+
+
     TextView text1;
     TextView text2;
     public final String ngrokID="894e346f";
@@ -56,6 +63,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Register sms listener
+
+        int res = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
+        if(res == PackageManager.PERMISSION_GRANTED){
+
+        }
+        else{
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 123);
+        }
 
         text1=findViewById(R.id.text1);
         text2=findViewById(R.id.text2);
@@ -78,8 +93,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         Log.d("ABC",msg);
 
-        numFaarm=senderPhoneNumber;
-        msgFarm=msg;
+
 
 
         Toast.makeText(this, "readIncomingMsg!: " + msg, Toast.LENGTH_SHORT).show();
@@ -111,6 +125,31 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         MyRequestQueue.add(MyStringRequest);
 
         //
+
+        numFaarm=senderPhoneNumber;
+        msgFarm=msg;
+
+        //sending sms in return as successful!
+        reply();
+        //
+
+    }
+
+    private void reply() {
+        String msg = "Hey replying from android!!";
+        String ph = numFaarm;
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(ph, null, msg, null, null);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 123 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            reply();
+
+        }
 
     }
 
