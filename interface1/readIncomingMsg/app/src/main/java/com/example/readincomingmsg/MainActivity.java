@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     TextView text1;
     TextView text2;
-    public final String ngrokID="3a6c7657";
+    public final String ngrokID="894e346f";
     public String numFaarm;
     public String msgFarm;
 
@@ -66,14 +66,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void messageReceived(String senderPhoneNumber,String emailFrom,String emailBody,String msgBody,long timeStamp,String Message) {
+    public void messageReceived(final String senderPhoneNumber, String emailFrom, String emailBody, String msgBody, long timeStamp, String Message) {
         Log.d("msgInfo",senderPhoneNumber);
         Log.d("msgInfo",Message);
 
 
         String msg="";
-        msg=Message.replaceAll(" ","%20");
-        msg=msg.replaceAll("\n","%0A");
+        msg=Message.replaceAll(" "," ");
+        msg=msg.replaceAll("\n","\n");
 
 
         Log.d("ABC",msg);
@@ -83,59 +83,35 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
 
         Toast.makeText(this, "readIncomingMsg!: " + msg, Toast.LENGTH_SHORT).show();
-        MyTask t1 = new MyTask();
-        t1.execute("https://"+ngrokID+".ngrok.io/post?phno="+senderPhoneNumber+"&msg="+msg);
-
-    }
 
 
+        RequestQueue MyRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        String url = "https://"+ngrokID+".ngrok.io/";
+        final String finalMsg = msg;
 
-    class MyTask extends AsyncTask<String, Void, String>{
-        String searchResult = "";
-        String jsonString = "";
-        String line = "";
-
-        @Override
-        protected String doInBackground(String... strings) {
-            URL url = null;
-            try {
-                url = new URL(strings[0]);
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.connect();
-                InputStream inputStreamReader = con.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStreamReader));
-
-                while((line = reader.readLine()) != null){
-                    jsonString += line + "\n";
-                }
-                if(jsonString != null){
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    JSONArray jsonArray = jsonObject.getJSONArray("Search");
-                    for(int i = 0; i < jsonArray.length() ; i++){
-                        JSONObject movie = jsonArray.getJSONObject(i);
-                        String title = "ttt";
-                        String year = "yyyyyyy";
-                        searchResult += title + " " + year + "\n";
-                    }
-                }
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+        StringRequest MyStringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //This code is executed if the server responds, whether or not the response contains data.
+                //The String 'response' contains the server's response.
             }
-            return searchResult;
+        }, new Response.ErrorListener() { //Create an error listener to handle errors appropriately.
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //This code is executed if there is an error.
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> MyData = new HashMap<String, String>();
+                MyData.put("phone_no", senderPhoneNumber); //Add the data you'd like to send to the server.
+                MyData.put("details", finalMsg); //Add the data you'd like to send to the server.
+                return MyData;
+            }
+        };
+        MyRequestQueue.add(MyStringRequest);
 
-        }
+        //
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            text1.setText(msgFarm);
-            text2.setText(numFaarm);
-        }
     }
 
 
