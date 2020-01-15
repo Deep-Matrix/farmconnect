@@ -6,15 +6,6 @@ from datetime import datetime
 
 conn = sqlite3.connect('datahouse.db')
 
-conn.execute('''CREATE TABLE IF NOT EXISTS TYPES
-              (TYPEID INT PRIMARY KEY NOT NULL,
-              TYPENAME CHAR(50) NOT NULL,
-              TOTALAVAILABILITY INT
-              );
-        '''
-        )
-conn.commit() # Checked. OK
-
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
              (FARMERID INTEGER PRIMARY KEY NOT NULL,
               ADDRESS CHAR(50) NOT NULL,
