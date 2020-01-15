@@ -15,6 +15,10 @@ app.config['SECRET_KEY'] = 'thisissecret'
 
 # db = SQLAlchemy(app)
 
+def connect():
+    # Sharing same reference across project to save memory and also, it makes updating database path easier.
+    return sqlite3.connect("datahouse.db")
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -27,7 +31,7 @@ def token_required(f):
             return jsonify({'message' : 'Token is missing!'}), 401
 
         try: 
-            conn = sqlite3.connect("datahouse.db")
+            conn = connect()
             cursorObj = conn.cursor()
             entities = ((data['farmerid']))
             cursorObj.execute("SELECT * FROM FARMER WHERE FARMERID ==? LIMIT 1;",entities)
@@ -47,7 +51,7 @@ def create_user():
     data = request.get_json()
     hashed_password = generate_password_hash(data['password'], method='sha256')
     # data={}
-    conn = sqlite3.connect("datahouse.db")
+    conn = connect()
     cursorObj = conn.cursor()
     entities = ((str(uuid.uuid4()),data['address'],data['fname'],hashed_password,data['aadhar'],data['imagelink'],date.today() ,data['phone_no']))
     cursorObj.execute("INSERT INTO FARMER(FARMERID,ADDRESS,FULLNAME,PASSWORD,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?)",entities)
@@ -192,7 +196,9 @@ def price_sort():
 def review_sort():
     pass
 
-
+@app.route('/streamproduce', methods=['POST'])
+def streamproduce():
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True)
