@@ -18,7 +18,9 @@ app.config['SECRET_KEY'] = 'thisissecret'
 
 def connect():
     # Sharing same reference across project to save memory and also, it makes updating database path easier.
-    return sqlite3.connect("datahouse.db")
+    conn = sqlite3.connect("datahouse.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def token_required(f):
     @wraps(f)
