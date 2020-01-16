@@ -154,10 +154,10 @@ def list_reviews():
     return jsonify(data)
 
 #talha
-@app.route('/farmer_history',methods=['POST'])
+@app.route('/farmer_history')
 def farmer_history():
     try:
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect
         cursorObj = conn.cursor()
         data = request.get_json()
         entities=((data['farmerid']))
