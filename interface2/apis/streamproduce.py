@@ -1,2 +1,0 @@
-def stream():
-    pass

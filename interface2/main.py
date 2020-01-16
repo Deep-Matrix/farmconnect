@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, make_response
 from datetime import date
-from flask_sqlalchemy import SQLAlchemy
 import sqlite3
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,7 +7,7 @@ import jwt
 import datetime
 from functools import wraps
 
-from apis import streamproduce
+from interface import stream_produce
 
 app = Flask(__name__)
 
@@ -205,10 +204,10 @@ def review_sort():
 # {
 #     "1":{
 #         "produceid": ""
+#         "producename": ""
 #         "farmername": ""
 #         "availableqty": "" (in quintals)
 #         "cost": "" (per quintal)
-#         "isSold": "True/False"
 #         "description": ""
 #         "qualityreview": ""
 #         "notimebought": ""
@@ -221,8 +220,8 @@ def review_sort():
 
 @app.route('/streamproduce')
 def streamproduce():
-    reqnum = request.args.get('reqnum')
-    return jsonify(streamproduce.stream(reqnum)
+    conn = connect()
+    return (jsonify(stream_produce.get(conn)))
 
 if __name__ == '__main__':
     app.run(debug=True)
