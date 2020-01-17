@@ -247,5 +247,56 @@ def getproduce():
     conn = connect()
     return jsonify(stream_produce.item(conn, reqid))
 
+@app.route('/register_owner', methods=['POST'])
+def register_owner():
+    try:
+        data = request.get_json()
+        hashed_password = generate_password_hash(data['password'], method='sha256')
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
+        cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
+        conn.commit()
+        # cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER;")
+        # vals = cursorObj.fetchone()[0]
+        # data['val'] = vals
+    except Exception as e:
+        data['error'] = str(e)
+        return data
+    return jsonify({'message' : 'New user created!'})
+    # return data
+
+@app.route('/add_warehouse',methods=['POST'])
+def add_warehouse():
+    try:
+        data = request.get_json()
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        entities = ((str(uuid.uuid4()),data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
+        conn.commit()
+    except Exception as e:
+        data['error'] = str(e)
+        return data
+    return jsonify({'message' : 'New Warehouse Added!'})
+
+@app.route('/list_warehouse',methods=['POST'])
+def list_warehouse():
+    try:
+        data = {}
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM WAREHOUSE;")
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['warehouses'] = li
+        conn.commit()
+    except Exception as e:
+        return jsonify({"alert" : "Error!"})    
+    return jsonify(data)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

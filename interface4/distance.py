@@ -25,8 +25,8 @@ def token_required(f):
         try: 
             conn = connect()
             cursorObj = conn.cursor()
-            entities = ((data['farmerid']))
-            cursorObj.execute("SELECT * FROM FARMER WHERE FARMERID ==? LIMIT 1;",entities)
+            entities = ((data['warehouse_owner_id']))
+            cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER WHERE WAREHOUSE_OWNER_ID ==? LIMIT 1;",entities)
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = cursorObj.fetchone()[0]
         except:
@@ -48,7 +48,7 @@ def login_warehouse_owner():
     conn = sqlite3.connect("../interface2/datahouse.db")
     cursorObj = conn.cursor()
     entities = ((data['phone_no']),)
-    cursorObj.execute("SELECT * FROM FARMER WHERE PHONENUMBER ==?;",entities)
+    cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER WHERE PHONENUMBER ==?;",entities)
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     current_user = cursorObj.fetchone()
 
@@ -56,7 +56,7 @@ def login_warehouse_owner():
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
     # data = jwt.decode(token, app.config['SECRET_KEY'])
-    userpassword = current_user[3]
+    userpassword = current_user[2]
     xx={}
     #xx['1']=userpassword
     #xx['2']=current_user
@@ -64,10 +64,10 @@ def login_warehouse_owner():
     try:
         if check_password_hash(userpassword, auth.password):
             entities = ((data['phone_no']),)
-            cursorObj.execute("SELECT FARMERID FROM FARMER WHERE PHONENUMBER ==?;",entities)
+            cursorObj.execute("SELECT WAREHOUSE_OWNER_ID FROM WAREHOUSE_OWNER WHERE PHONENUMBER ==?;",entities)
             # data = jwt.decode(token, app.config['SECRET_KEY'])
-            farmerid = cursorObj.fetchone() 
-            token = jwt.encode({'farmerid' : farmerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+            warehouse_owner_id = cursorObj.fetchone() 
+            token = jwt.encode({'warehouse_owner_id' : warehouse_owner_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
 
             return jsonify({'token' : token.decode('UTF-8')})
     except Exception as e:
@@ -85,43 +85,58 @@ def register_owner():
     try:
         data = request.get_json()
         hashed_password = generate_password_hash(data['password'], method='sha256')
-        conn = sqlite3.connect('datahouse.db')
+        conn = sqlite3.connect('../interface2/datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['warehouse_id'],data['phone_no'],hashed_password,data['aadhar'],data['photo_url'],data['name']))
-        cursorObj.execute("INSERT INTO WAREHOUSE_OWNERS(ID,WAREHOUSE_ID,PHONE_NUMBER,PASSWORD,AADHAR,PHOTO_URL,NAME) VALUES(?,?,?,?,?,?,?)",entities)
+        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
+        cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
+        # cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER;")
+        # vals = cursorObj.fetchone()[0]
+        # data['val'] = vals
     except Exception as e:
         data['error'] = str(e)
         return data
     return jsonify({'message' : 'New user created!'})
+    # return data
 
 @app.route('/add_warehouse',methods=['POST'])
 def add_warehouse():
     try:
         data = request.get_json()
-        conn = sqlite3.connect('datahouse.db')
+        conn = sqlite3.connect('../interface2/datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['available_size'],data['phone_no'],hashed_password,data['aadhar'],data['photo_url'],data['name']))
-        cursorObj.execute("INSERT INTO WAREHOUSE(ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?,?)",entities)
+        entities = ((str(uuid.uuid4()),data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
         data['error'] = str(e)
         return data
     return jsonify({'message' : 'New Warehouse Added!'})
 
+@app.route('/list_warehouse',methods=['POST'])
+def list_warehouse():
+    try:
+        data = {}
+        conn = sqlite3.connect('../interface2/datahouse.db')
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM WAREHOUSE;")
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['warehouses'] = li
+        conn.commit()
+    except Exception as e:
+        return jsonify({"alert" : "Error!"})    
+    return jsonify(data)
 
 @app.route('/search_warehouse',methods=['POST'])
 def search_warehouse():
     pass
 
-@app.route('/list_warehouse',methods=['POST'])
-def list_warehouse():
-    pass
-
 @app.route('/rent_warehouse',methods=['POST'])
 def rent_warehouse():
-    try:
-        
+    try:    
         data = request.get_json()
         warehouse_id = data['warehouse_id']
         farmer_id = data['farmer_id']
@@ -131,8 +146,5 @@ def rent_warehouse():
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM")
     except Exception as e:
-
-
-# @app.route('/',methods=['POST'])
-# def register_warehouse():
-#     pass
+        return jsonify({"alert" : "Error!"})    
+    return jsonify({"message" : "sguervndbs"})
