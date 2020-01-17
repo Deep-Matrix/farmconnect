@@ -228,5 +228,24 @@ def streamlength():
     conn = connect()
     return jsonify(stream_produce.length(conn))
 
+# This api returns details of specific produce.
+# It will be used to build specific page for product.
+# return:
+# {
+#         "produceid": ""
+#         "producename": ""
+#         "farmername": ""
+#         "availableqty": "" (in quintals)
+#         "cost": "" (per quintal)
+#         "description": ""
+#         "qualityreview": ""
+#         "notimebought": ""
+#     }
+@app.route('/getproduce')
+def getproduce():
+    reqid = request.args.get('id')
+    conn = connect()
+    return jsonify(stream_produce.item(conn, reqid))
+
 if __name__ == '__main__':
     app.run(debug=True)

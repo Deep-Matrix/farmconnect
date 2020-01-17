@@ -30,5 +30,10 @@ def index():
 
 @app.route('/produce/<id>')
 def produceinformation(id):
-    
-    pass
+    data = {}
+    try:
+        data = requests.get("http://127.0.0.1:5000/getproduce?id="+str(id)).json()
+    except Exception as e:
+        print(e)
+    return render_template('produce.html', title=str(id)+" - Details", data=data)
+        

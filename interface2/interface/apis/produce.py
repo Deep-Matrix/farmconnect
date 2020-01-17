@@ -8,3 +8,10 @@ def stream(conn):
     cursor = conn.execute(query)
     rows = cursor.fetchall()
     return rows
+
+def specific(conn, reqid):
+    data = dict()
+    query = "SELECT * FROM FARMER_PRODUCE WHERE SOLD = 'False' AND PRODUCEID = " + str(reqid)
+    cursor = conn.execute(query)
+    rows = cursor.fetchall()
+    return rows

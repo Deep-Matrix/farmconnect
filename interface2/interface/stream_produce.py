@@ -23,3 +23,16 @@ def length(conn):
     returndata = {}
     returndata['length'] = produce.totalToStream(conn)
     return returndata
+    
+def item(conn, reqid):
+    data = produce.specific(conn, reqid)[0]
+    tempdata = dict()
+    tempdata['produceid'] = data['PRODUCEID']
+    tempdata['farmername'] = farmer.getNameFromId(conn, data['FARMERUSERID'])
+    tempdata['producename'] = data['producename']
+    tempdata['availableqty'] = data['AVAILABLEQUANTITY']
+    tempdata['cost'] = data['cost']
+    tempdata['description'] = data['DESCRIPTION']
+    tempdata['qualityreview'] = data['QUALITY_REVIEW']
+    tempdata['notimebought'] = data['NO_TIMES_BOUGHT']
+    return tempdata
