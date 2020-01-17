@@ -74,32 +74,35 @@ conn.execute('''CREATE TABLE IF NOT EXISTS BUSINESS_HISTORY
             )
 conn.commit()
 
-
-conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE
-            (ID CHAR(500) PRIMARY KEY NOT NULL,
-              AVAILABLE_SIZE INT NOT NULL,
-              PHOTO_URL CHAR(100) NOT NULL,
-              LOCATION CHAR(200)  NOT NULL,
-              COST INT NOT NULL
-            );'''  
-            )
-conn.commit()
-
-conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_OWNER
-            (ID CHAR(500) PRIMARY KEY NOT NULL,
-              WAREHOUSE_ID CHAR(500) NOT NULL,
+conn.execute('''CREATE TABLE IF NOT EXISTS WAREHOUSE_OWNER
+            (WAREHOUSE_OWNER_ID CHAR(500) PRIMARY KEY NOT NULL,
+              FULLNAME CHAR(20) NOT NULL,
               PASSWORD CHAR(50) NOT NULL,
-              PHONE_NUMBER INT NOT NULL,
+              ADDRESS CHAR(150) NOT NULL,
               AADHAR CHAR(12) NOT NULL,
-              PHOTO_URL CHAR(100) NOT NULL,
-              NAME CHAR(50) NOT NULL,
-              FOREIGN KEY (WAREHOUSE_ID) REFERENCES WAREHOUSE (ID)
+              IMAGELINK CHAR(100) NOT NULL,
+              DATEJOINED CHAR(12) NOT NULL,
+              PHONENUMBER INT NOT NULL
             );'''
             )
 conn.commit()
 
+
+conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE
+            (WAREHOUSE_ID CHAR(500) PRIMARY KEY NOT NULL,
+              OWNER_ID CHAR(500) NOT NULL,
+              AVAILABLE_SIZE INT NOT NULL,
+              PHOTO_URL CHAR(100) NOT NULL,
+              LOCATION CHAR(200)  NOT NULL,
+              COST INT NOT NULL,
+              FOREIGN KEY (OWNER_ID) REFERENCES WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID)
+            );'''  
+            )
+conn.commit()
+
+
 conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_TRANSACTION
-            (ID CHAR(500) PRIMARY KEY NOT NULL,
+            (TRANSACTION_ID CHAR(500) PRIMARY KEY NOT NULL,
               WAREHOUSE_ID CHAR(500) NOT NULL,
               FARMER_ID CHAR(200)  NOT NULL,
               PRODUCE_ID CHAR(500) NOT NULL,
@@ -110,9 +113,5 @@ conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_TRANSACTION
             );'''
             )
 conn.commit()
-
-
-
-
 
 conn.close()

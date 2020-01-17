@@ -95,6 +95,21 @@ def register_owner():
         return data
     return jsonify({'message' : 'New user created!'})
 
+@app.route('/add_warehouse',methods=['POST'])
+def add_warehouse():
+    try:
+        data = request.get_json()
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        entities = ((str(uuid.uuid4()),data['available_size'],data['phone_no'],hashed_password,data['aadhar'],data['photo_url'],data['name']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?,?)",entities)
+        conn.commit()
+    except Exception as e:
+        data['error'] = str(e)
+        return data
+    return jsonify({'message' : 'New Warehouse Added!'})
+
+
 @app.route('/search_warehouse',methods=['POST'])
 def search_warehouse():
     pass
