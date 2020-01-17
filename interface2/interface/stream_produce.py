@@ -18,3 +18,8 @@ def get(conn):
         returndata[counter] = tempdata
         counter += 1
     return returndata
+
+def length(conn):
+    returndata = {}
+    returndata['length'] = produce.totalToStream(conn)
+    return returndata

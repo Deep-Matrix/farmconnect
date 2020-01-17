@@ -200,11 +200,9 @@ def review_sort():
     pass
 
 # This api will be used to display available produce.
-# It will accept one parameter
-# reqnum -> number of request. (this is because it will send 10 responses eachtime.)
 # return:
 # {
-#     "1":{
+#     "0":{
 #         "produceid": ""
 #         "producename": ""
 #         "farmername": ""
@@ -214,16 +212,27 @@ def review_sort():
 #         "qualityreview": ""
 #         "notimebought": ""
 #     }
-#     "2":{
+#     "1":{
 #         same
 #     }
-#     so on (till 10)
+#     so on (till length)
 # } 
 
 @app.route('/streamproduce')
 def streamproduce():
     conn = connect()
     return (jsonify(stream_produce.get(conn)))
+
+
+# This function returns length of producestream. It can be used to run loops
+# Return Format:
+# {
+#     "length":""
+# }
+@app.route('/streamproducelength')
+def streamlength():
+    conn = connect()
+    return jsonify(stream_produce.length(conn))
 
 if __name__ == '__main__':
     app.run(debug=True)
