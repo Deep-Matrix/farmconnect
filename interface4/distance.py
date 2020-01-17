@@ -95,16 +95,27 @@ def register_owner():
         return data
     return jsonify({'message' : 'New user created!'})
 
+@app.route('/add_warehouse',methods=['POST'])
+def add_warehouse():
+    try:
+        data = request.get_json()
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        entities = ((str(uuid.uuid4()),data['available_size'],data['phone_no'],hashed_password,data['aadhar'],data['photo_url'],data['name']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?,?)",entities)
+        conn.commit()
+    except Exception as e:
+        data['error'] = str(e)
+        return data
+    return jsonify({'message' : 'New Warehouse Added!'})
+
+
 @app.route('/search_warehouse',methods=['POST'])
 def search_warehouse():
     pass
 
 @app.route('/list_warehouse',methods=['POST'])
 def list_warehouse():
-    pass
-
-@app.route('/add_warehouse',methods=['POST'])
-def add_warehouse():
     pass
 
 @app.route('/rent_warehouse',methods=['POST'])
@@ -122,10 +133,15 @@ def rent_warehouse():
         entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date,time))
         cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
-        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE ID ==?;",(warehouse_id,))
-        
+        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE WAREHOUSE_ID ==?;",(warehouse_id,))
+        row = cursorObj.fetchone()[0]
+        id_x = row[0]
+        new_data = row[2]-produce_quantity
+        entities=((new_data,id_x))
+        cursorObj.execute("UPDATE WAREHOUSE SET AVAILABLE_SIZE = ? WHERE WAREHOUSE_ID == ?",entities) 
     except Exception as e:
-
+        return jsonify({'message':"Error"})
+    return jsonify({"message":"Warehouse has been rented"})
 
 # @app.route('/',methods=['POST'])
 # def register_warehouse():
