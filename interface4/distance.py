@@ -161,6 +161,25 @@ def rent_warehouse():
         return jsonify({'message':"Error"})
     return jsonify({"message":"Warehouse has been rented"})
 
+
+@app.route('/list_owner_warehouse',methods=['POST'])
+def list_owner_warehouses():
+    try:
+        data={}
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        data = request.get_json()
+        owner_id = data['owner_id']
+        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE OWNER_ID ==?;",(owner_id,))
+        rows = cursorObj.fetchall()
+        li=[]
+        for row in rows:
+            li.append(row)
+        data['warehouses'] = li
+    except Exception as e:
+        data['error'] = str(e)
+    return jsonify(data)
+
 # @app.route('/',methods=['POST'])
 # def register_warehouse():
 #     pass
