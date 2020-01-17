@@ -136,15 +136,29 @@ def search_warehouse():
 
 @app.route('/rent_warehouse',methods=['POST'])
 def rent_warehouse():
-    try:    
+    try:
         data = request.get_json()
         warehouse_id = data['warehouse_id']
         farmer_id = data['farmer_id']
         produce_id = data['produce_id']
         produce_quantity = data['produce_quantity']
+        date = data['date']
+        time = data['time'] 
         conn = sqlite3.connect('../interface2/datahouse.db')
         cursorObj = conn.cursor()
-        cursorObj.execute("SELECT * FROM")
+        entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date,time))
+        cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
+        conn.commit()
+        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE WAREHOUSE_ID ==?;",(warehouse_id,))
+        row = cursorObj.fetchone()[0]
+        id_x = row[0]
+        new_data = row[2]-produce_quantity
+        entities=((new_data,id_x))
+        cursorObj.execute("UPDATE WAREHOUSE SET AVAILABLE_SIZE = ? WHERE WAREHOUSE_ID == ?",entities) 
     except Exception as e:
-        return jsonify({"alert" : "Error!"})    
-    return jsonify({"message" : "sguervndbs"})
+        return jsonify({'message':"Error"})
+    return jsonify({"message":"Warehouse has been rented"})
+
+# @app.route('/',methods=['POST'])
+# def register_warehouse():
+#     pass

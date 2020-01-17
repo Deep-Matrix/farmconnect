@@ -7,7 +7,7 @@ from datetime import datetime
 conn = sqlite3.connect('datahouse.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
-            (FARMERID CHAR(500) PRIMARY KEY NOT NULL,
+            ( FARMERID CHAR(500) PRIMARY KEY NOT NULL,
               ADDRESS CHAR(50) NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
               PASSWORD CHAR(50) NOT NULL,
