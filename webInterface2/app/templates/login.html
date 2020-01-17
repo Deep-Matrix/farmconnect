@@ -1,135 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+	<!-- {{ url_for('static', filename='mainpage.css')}} -->
+	<head>
+		<title>{{ title }}</title>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!--===============================================================================================-->	
+			<!-- <link rel="icon" type="image/png" href="images/icons/favicon.ico"/> -->
+			<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icons/favicon.ico')}}"/>
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css')}}">
+		<!--===============================================================================================-->	
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="css/util.css">
+			<link rel="stylesheet" type="text/css" href="css/main.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css')}}">
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css')}}">
+		<!--===============================================================================================-->
+		</head>
+<body>
+	
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<div class="login100-pic js-tilt" data-tilt>
+					<img src="{{ url_for('static', filename='images/img-01.png')}}" alt="IMG">
+					
+				</div>
 
-<head>
-  <meta charset="utf-8" />
-  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <title>
-    {{ title }}
-  </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
-  <!--     Fonts and icons     -->
-  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-  <!-- CSS Files -->
-  <link href="{{ url_for('static', filename = '/css/material-dashboard.css?v=2.1.1') }}" rel="stylesheet" />
-  <!-- CSS Just for demo purpose, don't include it in your project -->
-  <!-- <link href="../assets/demo/demo.css" rel="stylesheet" /> -->
-</head>
+				<form class="login100-form validate-form" method="POST" novalidate>
+					{{ form.hidden_tag() }}
+					<span class="login100-form-title">
+						Login
+					</span>
 
-<body class="">
-    <div class="main-panel">
-      <!-- Navbar -->
-      
-      <!-- End Navbar -->
-      <div class="content">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-8">
-              <div class="card">
-                <div class="card-header card-header-primary">
-                  <h4 class="card-title">Login</h4>
-                  <p class="card-category">You Need to Signin First</p>
-                </div>
-                <div class="card-body">
-                  <form method="POST">
-                    {{ form.hidden_tag() }}
-                    <div class="row">
-                      <div class="col-md-5">
-                        <div class="form-group">
-                          {{ form.username(class='bmd-label-floating', placeholder="Email") }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-5">
-                        <div class="form-group">
-                          {{ form.password(class='bmd-label-floating', placeholder="Password") }}
-                        </div>
-                      </div>
-                    </div>
-                    {{ form.submit(class="btn btn-primary btn-pull-right") }}
-                    <div class="clearfix"></div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <footer class="footer">
-        
-      </footer>
-    </div>
-  </div>
-  <!--   Core JS Files   -->
-  <!-- <script src="../assets/js/core/jquery.min.js"></script> -->
-  <script src="{{ url_for('static', filename='/js/core/jquery.min.js') }}"></script>
-  <!-- <script src="../assets/js/core/popper.min.js"></script> -->
-  <script src="{{ url_for('static', filename='/js/core/popper.min.js') }}"></script>
-  <!-- <script src="../assets/js/core/bootstrap-material-design.min.js"></script> -->
-  <script src="{{ url_for('static', filename='/js/core/bootstrap-material-design.min.js')}}"></script>
-  <!-- <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script> -->
-  <script src="{{ url_for('static', filename='/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script>
-  <!-- Plugin for the momentJs  -->
-  <!-- <script src="../assets/js/plugins/moment.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/moment.min.js') }}"></script>
-  <!--  Plugin for Sweet Alert -->
-  <!-- <script src="../assets/js/plugins/sweetalert2.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/sweetalert2.js') }}"></script>
-  <!-- Forms Validations Plugin -->
-  <!-- <script src="../assets/js/plugins/jquery.validate.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/jquery.validate.min.js') }}"></script>
-  <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
-  <!-- <script src="../assets/js/plugins/jquery.bootstrap-wizard.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/jquery.bootstrap-wizard.js') }}"></script>
-  <!--	Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
-  <!-- <script src="../assets/js/plugins/bootstrap-selectpicker.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/bootstrap-selectpicker.js' ) }}"></script>
-  <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
-  <!-- <script src="../assets/js/plugins/bootstrap-datetimepicker.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/bootstrap-datetimepicker.min.js')}}"></script>
-  <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
-  <!-- <script src="../assets/js/plugins/jquery.dataTables.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/jquery.dataTables.min.js')}}"></script>
-  <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
-  <!-- <script src="../assets/js/plugins/bootstrap-tagsinput.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/bootstrap-tagsinput.js') }}"></script>
-  <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
-  <!-- <script src="../assets/js/plugins/jasny-bootstrap.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/jasny-bootstrap.min.js') }}"></script>
-  <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
-  <!-- <script src="../assets/js/plugins/fullcalendar.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/fullcalendar.min.js') }}"></script>
-  <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
-  <!-- <script src="../assets/js/plugins/jquery-jvectormap.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/jquery-jvectormap.js')}}"></script>
-  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
-  <!-- <script src="../assets/js/plugins/nouislider.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/nouislider.min.js')}}"></script>
-  <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support SweetAlert -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
-  <!-- Library for adding dinamically elements -->
-  <!-- <script src="../assets/js/plugins/arrive.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/arrive.min.js') }}"></script>
-  <!--  Google Maps Plugin    -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-  <!-- Chartist JS -->
-  <!-- <script src="../assets/js/plugins/chartist.min.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/chartist.min.js') }}"></script>
-  <!--  Notifications Plugin    -->
-  <!-- <script src="../assets/js/plugins/bootstrap-notify.js"></script> -->
-  <script src="{{ url_for('static', filename='js/plugins/bootstrap-notify.js') }}"></script>
-  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-  <!-- <script src="../assets/js/material-dashboard.js?v=2.1.1" type="text/javascript"></script> -->
-  <script src="{{ url_for('static', filename='js/material-dashboard.js?v=2.1.1') }}" type="text/javascript"></script>
-  <!-- Material Dashboard DEMO methods, don't include it in your project! -->
-  <!-- <script src="../assets/demo/demo.js"></script>
-  <script src="../assets/demo/userjs.js"></script> -->
-  <script src="{{ url_for('static', filename='demo/demo.js') }}"></script>
-  <script src="{{ url_for('static', filename='demo/userjs.js') }}"></script>
+					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
+						<!-- <input class="input100" type="text" name="email" placeholder="Email"> -->
+						{{ form.username(class='input100', placeholder="Email") }}
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-envelope" aria-hidden="true"></i>
+						</span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Password is required">
+						{{ form.password(class='input100', placeholder="Password") }}
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-lock" aria-hidden="true"></i>
+						</span>
+					</div>
+					
+					<div class="container-login100-form-btn">
+						<!-- <button class="login100-form-btn"> -->
+							{{ form.submit(class="login100-form-btn") }}
+						<!-- </button> -->
+					</div>
+
+					<div class="text-center p-t-136">
+						<a class="txt2" href="#">
+							Create your Account
+							<i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	
+
+	
+<!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/tilt/tilt.jquery.min.js"></script>
+	<script >
+		$('.js-tilt').tilt({
+			scale: 1.1
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
 </body>
-
 </html>
