@@ -134,11 +134,13 @@ def rent_warehouse():
         cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
         cursorObj.execute("SELECT * FROM WAREHOUSE WHERE WAREHOUSE_ID ==?;",(warehouse_id,))
+        conn.commit()
         row = cursorObj.fetchone()[0]
         id_x = row[0]
         new_data = row[2]-produce_quantity
         entities=((new_data,id_x))
         cursorObj.execute("UPDATE WAREHOUSE SET AVAILABLE_SIZE = ? WHERE WAREHOUSE_ID == ?",entities) 
+        conn.commit()
     except Exception as e:
         return jsonify({'message':"Error"})
     return jsonify({"message":"Warehouse has been rented"})
