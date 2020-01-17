@@ -7,7 +7,7 @@ import jwt
 import datetime
 from functools import wraps
 
-from interface import stream_produce
+from interface import stream_produce, create_farmer
 
 app = Flask(__name__)
 
@@ -47,35 +47,25 @@ def token_required(f):
 
     return decorated
 
-@app.route('/farmeruser', methods=['POST'])
+# This interface will create farmer's entry in database
+# input:
+# {
+#     "address":""
+#     "fname":""
+#     "password":""
+#     "aadhar":""
+#     "imagelink":""
+#     "phone_no"
+# }
+
+@app.route('/registerfarmer', methods=['POST'])
 def create_user():
-#    if not current_user.admin:
-#        return jsonify({'message' : 'Cannot perform that function!'})
     data = request.get_json()
-    hashed_password = generate_password_hash(data['password'], method='sha256')
-    # data={}
+    data['password'] = generate_password_hash(data['password'], method='sha256')
     conn = connect()
-    cursorObj = conn.cursor()
-    entities = ((str(uuid.uuid4()),data['address'],data['fname'],hashed_password,data['aadhar'],data['imagelink'],date.today() ,data['phone_no']))
-    cursorObj.execute("INSERT INTO FARMER(FARMERID,ADDRESS,FULLNAME,PASSWORD,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?)",entities)
-    # cursorObj.execute("SELECT * FROM FARMER;")
-    # vals = cursorObj.fetchall()
-    # li = []
-    # for val in vals:
-    #     li.append(val)
-
-    # data['listads===_x'] = li
-    # data = {"X":vals}
-    # print(vals)
-    # # for val in vals:
-    #     print(val)
-    conn.commit()
-
-    return jsonify({'message' : 'New user created!'})
-    # return jsonify(data)
+    return jsonify(create_farmer.create(conn, data))
 
 @app.route('/login')
-@token_required
 def login():
 
     auth = request.authorization
@@ -217,7 +207,6 @@ def review_sort():
 #     }
 #     so on (till length)
 # } 
-
 @app.route('/streamproduce')
 def streamproduce():
     conn = connect()
