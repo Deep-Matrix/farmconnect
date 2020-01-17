@@ -57,13 +57,21 @@ def token_required(f):
 #     "imagelink":""
 #     "phone_no"
 # }
+# returns:
+# {
+#     "status":"OK/Fail"
+#     "message":"New User Created./Error Message"
+# }
 
-@app.route('/registerfarmer', methods=['POST'])
+@app.route('/registerfarmer', methods=['GET', 'POST'])
 def create_user():
-    data = request.get_json()
-    data['password'] = generate_password_hash(data['password'], method='sha256')
-    conn = connect()
-    return jsonify(create_farmer.create(conn, data))
+    try:
+        data = request.get_json()
+        data['password'] = generate_password_hash(data['password'], method='sha256')
+        conn = connect()
+        return jsonify(create_farmer.create(conn, data))
+    except:
+        return jsonify({"message":"post required", "status":"fail"})
 
 @app.route('/login')
 def login():
@@ -87,9 +95,6 @@ def login():
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     userpassword = current_user[3]
     xx={}
-    #xx['1']=userpassword
-    #xx['2']=current_user
-
     try:
         if check_password_hash(userpassword, auth.password):
             entities = ((data['phone_no']),)
