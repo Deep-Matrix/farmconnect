@@ -317,9 +317,9 @@ def register_owner():
         entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
         cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
-        # cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER;")
-        # vals = cursorObj.fetchone()[0]
-        # data['val'] = vals
+        cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER;")
+        vals = cursorObj.fetchone()[0]
+        data['val'] = vals
     except Exception as e:
         data['error'] = str(e)
         return data
