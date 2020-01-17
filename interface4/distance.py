@@ -120,7 +120,18 @@ def list_warehouse():
 
 @app.route('/rent_warehouse',methods=['POST'])
 def rent_warehouse():
-    pass
+    try:
+        
+        data = request.get_json()
+        warehouse_id = data['warehouse_id']
+        farmer_id = data['farmer_id']
+        produce_id = data['produce_id']
+        produce_quantity = data['produce_quantity']
+        conn = sqlite3.connect('../interface2/datahouse.db')
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM")
+    except Exception as e:
+
 
 # @app.route('/',methods=['POST'])
 # def register_warehouse():
