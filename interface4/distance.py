@@ -103,18 +103,27 @@ def search_warehouse():
 def list_warehouse():
     pass
 
+@app.route('/add_warehouse',methods=['POST'])
+def add_warehouse():
+    pass
+
 @app.route('/rent_warehouse',methods=['POST'])
 def rent_warehouse():
     try:
-        
         data = request.get_json()
         warehouse_id = data['warehouse_id']
         farmer_id = data['farmer_id']
         produce_id = data['produce_id']
         produce_quantity = data['produce_quantity']
+        date = data['date']
+        time = data['time'] 
         conn = sqlite3.connect('../interface2/datahouse.db')
         cursorObj = conn.cursor()
-        cursorObj.execute("SELECT * FROM")
+        entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date,time))
+        cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
+        conn.commit()
+        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE ID ==?;",(warehouse_id,))
+        
     except Exception as e:
 
 
