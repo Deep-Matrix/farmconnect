@@ -7,7 +7,7 @@ from datetime import datetime
 conn = sqlite3.connect('datahouse.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
-             (FARMERID INTEGER PRIMARY KEY NOT NULL,
+            (FARMERID CHAR(500) PRIMARY KEY NOT NULL,
               ADDRESS CHAR(50) NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
               PASSWORD CHAR(50) NOT NULL,
@@ -15,13 +15,13 @@ conn.execute('''CREATE TABLE IF NOT EXISTS FARMER
               IMAGELINK CHAR(100) NOT NULL,
               DATEJOINED CHAR(12) NOT NULL,
               PHONENUMBER INT NOT NULL
-             );'''
+            );'''
             )
 conn.commit() # Checked. OK
 
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER_PRODUCE
-             (PRODUCEID INTEGER PRIMARY KEY NOT NULL,
-              FARMERUSERID INT NOT NULL,
+            (PRODUCEID CHAR(500) PRIMARY KEY NOT NULL,
+              FARMERUSERID CHAR(500) NOT NULL,
               QUANTITY INT NOT NULL,
               AVAILABLEQUANTITY INT NOT NULL,
               COST INT,
@@ -35,7 +35,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS FARMER_PRODUCE
 conn.commit()
 
 conn.execute('''CREATE TABLE IF NOT EXISTS BUYER
-             (BUYERID INTEGER PRIMARY KEY NOT NULL,
+            (BUYERID CHAR(500) PRIMARY KEY NOT NULL,
               FULLNAME CHAR(20) NOT NULL,
               PASSWORD CHAR(50) NOT NULL,
               ADDRESS CHAR(150) NOT NULL,
@@ -43,14 +43,14 @@ conn.execute('''CREATE TABLE IF NOT EXISTS BUYER
               IMAGELINK CHAR(100) NOT NULL,
               DATEJOINED CHAR(12) NOT NULL,
               PHONENUMBER INT NOT NULL
-             );'''
+            );'''
             )
 conn.commit() # Checked. OK
 
 conn.execute('''CREATE TABLE IF NOT EXISTS QUALITY_REVIEW
-             (ID INT PRIMARYKEY NOT NULL,
-              BUYERID INT NOT NULL,
-              PRODUCEID INT NOT NULL,
+            (ID INT CHAR(500) PRIMARY KEY NOT NULL,
+              BUYERID CHAR(500) NOT NULL,
+              PRODUCEID CHAR(500) NOT NULL,
               RATING INT NOT NULL,
               DATE CHAR(12) NOT NULL,
               TIME CHAR(10) NOT NULL,
@@ -62,9 +62,9 @@ conn.commit() # Checked. OK
 
 
 conn.execute('''CREATE TABLE IF NOT EXISTS BUSINESS_HISTORY
-             (ID INT PRIMARYKEY NOT NULL,
-              BUYERID INT  NOT NULL,
-              PRODUCEID INT NOT NULL,
+            (ID INT CHAR(500) PRIMARY KEY NOT NULL,
+              BUYERID CHAR(500)  NOT NULL,
+              PRODUCEID CHAR(500) NOT NULL,
               QUANTITY INT NOT NULL,
               DATE CHAR(12) NOT NULL,
               TIME CHAR(10) NOT NULL,
@@ -73,5 +73,46 @@ conn.execute('''CREATE TABLE IF NOT EXISTS BUSINESS_HISTORY
               );'''
             )
 conn.commit()
+
+
+conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE
+            (ID CHAR(500) PRIMARY KEY NOT NULL,
+              AVAILABLE_SIZE INT NOT NULL,
+              PHOTO_URL CHAR(100) NOT NULL,
+              LOCATION CHAR(200)  NOT NULL,
+              COST INT NOT NULL
+            );'''  
+            )
+conn.commit()
+
+conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_OWNER
+            (ID CHAR(500) PRIMARY KEY NOT NULL,
+              WAREHOUSE_ID CHAR(500) NOT NULL,
+              PASSWORD CHAR(50) NOT NULL,
+              PHONE_NUMBER INT NOT NULL,
+              AADHAR CHAR(12) NOT NULL,
+              PHOTO_URL CHAR(100) NOT NULL,
+              NAME CHAR(50) NOT NULL,
+              FOREIGN KEY (WAREHOUSE_ID) REFERENCES WAREHOUSE (ID)
+            );'''
+            )
+conn.commit()
+
+conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_TRANSACTION
+            (ID CHAR(500) PRIMARY KEY NOT NULL,
+              WAREHOUSE_ID CHAR(500) NOT NULL,
+              FARMER_ID CHAR(200)  NOT NULL,
+              PRODUCE_ID CHAR(500) NOT NULL,
+              PRODUCE_QUANTITY INT NOT NULL,
+              FOREIGN KEY (WAREHOUSE_ID) REFERENCES WAREHOUSE (ID),
+              FOREIGN KEY (FARMER_ID) REFERENCES FARMER (FARMERID),
+              FOREIGN KEY (PRODUCE_ID) REFERENCES FARMER_PRODUCE (PRODUCEID)
+            );'''
+            )
+conn.commit()
+
+
+
+
 
 conn.close()
