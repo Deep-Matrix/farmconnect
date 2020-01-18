@@ -190,7 +190,20 @@ def buy_produce():
 
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
-    pass
+    try:
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE;")
+        li = []
+        vals = cursorObj.fetchall()
+        for val in vals:
+            li.append(val)
+        data['list'] = li
+        data['status'] = "OK"
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
+
 
 #tested - ok
 @app.route('/displayfarmers',methods=['POST'])
@@ -291,8 +304,21 @@ def cost_updation():
 #vinit
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
-    pass
-
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        entities = ((data['buyer_id']))
+        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID ==?;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['buyer_history'] = li
+        data['status'] = "OK"
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 # @app.route('/search_produce',methods=['POST'])  TO-BE DONE LATER
 # def search():  #from list produce
@@ -301,18 +327,59 @@ def buyer_history():
 
 @app.route('/category_sort',methods=['POST'])
 def category_sort():
-    pass
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        entities = ((data['category']))
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE TYPE ==? AND SOLD == False;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['status'] = "OK"
+        data['categorical_products'] = li 
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 
 @app.route('/price_sort',methods=['POST'])
 def price_sort():
-    pass
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['status'] = "OK"
+        data['price_products'] = li 
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
+
 
 
 
 @app.route('/review_sort',methods=['POST'])
 def review_sort():
-    pass
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['status'] = "OK"
+        data['review_products'] = li 
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 # This api will be used to display available produce.
 # return:
