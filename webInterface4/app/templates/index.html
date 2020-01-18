@@ -44,7 +44,7 @@
 ">
     <div class="container">
         <div class="float-left">
-            <h3>FarmConnect</h3>
+            <h3>WarehouseConnect</h3>
         </div>
         <div class="float-right">
             <img src=" {{ url_for('static', filename='images/img-02.png')}}" height="50px" width="50px" class="rounded"><br>
@@ -58,10 +58,10 @@
             
               {% if user %}
                 <h1 class="display-4">Welcome, {{ user.fullname }}</h1>
-                <p class="lead">Here you will see produces by various farmers across the area which are for sell. They are being directly sold by Farmer.</p>
+                <p class="lead">WarehouseConnect Provides a interface for warehouse owners to put their warehouses for rent.</p>
                 {% else %}
                 <h1 class="display-4">Welcome, User</h1>
-                <p class="lead">Here you will see produces by various farmers across the area which are for sell. They are being directly sold by Farmer. You need to signin to buy.</p>
+                <p class="lead">WarehouseConnect Provides a interface for warehouse owners to put their warehouses for rent. You need to signin to buy.</p>
               {% endif %}
             </div>
           </div>

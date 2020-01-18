@@ -80,32 +80,34 @@ def login_warehouse_owner():
 
 
 
+#tested - ok
 @app.route('/register_owner', methods=['POST'])
 def register_owner():
     try:
         data = request.get_json()
         hashed_password = generate_password_hash(data['password'], method='sha256')
-        conn = sqlite3.connect('../interface2/datahouse.db')
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
         cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
-        # cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER;")
-        # vals = cursorObj.fetchone()[0]
-        # data['val'] = vals
     except Exception as e:
         data['error'] = str(e)
         return data
     return jsonify({'message' : 'New user created!'})
-    # return data
 
+#tested - ok
 @app.route('/add_warehouse',methods=['POST'])
 def add_warehouse():
     try:
         data = request.get_json()
-        conn = sqlite3.connect('../interface2/datahouse.db')
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        u_id = str(uuid.uuid4())
+        entities = ((u_id,data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
+        conn.commit()
+        address_ent = ((u_id,data['latitude'],data['longitude']))
         cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
@@ -113,11 +115,12 @@ def add_warehouse():
         return data
     return jsonify({'message' : 'New Warehouse Added!'})
 
+#tested - ok
 @app.route('/list_warehouse',methods=['POST'])
 def list_warehouse():
     try:
         data = {}
-        conn = sqlite3.connect('../interface2/datahouse.db')
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM WAREHOUSE;")
         vals = cursorObj.fetchall()
@@ -130,38 +133,9 @@ def list_warehouse():
         return jsonify({"alert" : "Error!"})    
     return jsonify(data)
 
-@app.route('/search_warehouse',methods=['POST'])
-def search_warehouse():
-    pass
 
-@app.route('/rent_warehouse',methods=['POST'])
-def rent_warehouse():
-    try:
-        data = request.get_json()
-        warehouse_id = data['warehouse_id']
-        farmer_id = data['farmer_id']
-        produce_id = data['produce_id']
-        produce_quantity = data['produce_quantity']
-        date = datetime.date() 
-        time = datetime.time() 
-        conn = sqlite3.connect('../interface2/datahouse.db')
-        cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date,time))
-        cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
-        conn.commit()
-        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE WAREHOUSE_ID ==?;",(warehouse_id,))
-        conn.commit()
-        row = cursorObj.fetchone()[0]
-        id_x = row[0]
-        new_data = row[2]-produce_quantity
-        entities=((new_data,id_x))
-        cursorObj.execute("UPDATE WAREHOUSE SET AVAILABLE_SIZE = ? WHERE WAREHOUSE_ID == ?",entities) 
-        conn.commit()
-    except Exception as e:
-        return jsonify({'message':"Error"})
-    return jsonify({"message":"Warehouse has been rented"})
-
-
+if __name__ == '__main__':
+    app.run(debug=True,port = 6000)
 
 
 # @app.route('/',methods=['POST'])

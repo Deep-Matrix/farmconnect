@@ -1,7 +1,15 @@
-from flask import render_template, redirect, jsonify
+from flask import render_template, redirect, jsonify, session
 from app import app
 from app.forms import LoginForm
 import requests
+import json
+
+def validateLogin():
+    try:
+        data = session['token']
+    except:
+        data = ""
+    return data
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -9,9 +17,16 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        print("###############################")
+        r = requests.post('http://127.0.0.1:5000/login_buyer', auth = (username, password))
+        print("#########################################" + r.text)
+        if r.text == "Could not verify":
+            return redirect('/login')
+        else:
+            data = json.loads(r.text)
+            session['token'] = data['token']
+            print(session['token'])
         return redirect('/index')
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('login.html', title='Sign In', form=form, error='Invalid Credentials')
 
 @app.route('/')
 @app.route('/index')

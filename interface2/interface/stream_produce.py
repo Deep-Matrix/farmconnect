@@ -9,9 +9,9 @@ def get(conn):
         tempdata = dict()
         tempdata['produceid'] = data['PRODUCEID']
         tempdata['farmername'] = farmer.getNameFromId(conn, data['FARMERUSERID'])
-        tempdata['producename'] = data['producename']
+        tempdata['producename'] = data['PRODUCENAME']
         tempdata['availableqty'] = data['AVAILABLEQUANTITY']
-        tempdata['cost'] = data['cost']
+        tempdata['cost'] = data['COST']
         tempdata['description'] = data['DESCRIPTION']
         tempdata['qualityreview'] = data['QUALITY_REVIEW']
         tempdata['notimebought'] = data['NO_TIMES_BOUGHT']
