@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from functools import wraps
 from math import sin, cos, sqrt, atan2
+import os
 from interface import stream_produce, create_farmer
 
 app = Flask(__name__)
@@ -479,6 +480,7 @@ def list_warehouse():
         return jsonify({"alert" : "Error!"})    
     return jsonify(data)
 
+
 # tested - ok
 @app.route('/rent_warehouse',methods=['POST'])
 def rent_warehouse():
@@ -507,13 +509,6 @@ def rent_warehouse():
         return jsonify({'message':str(e)})
     return jsonify({"message":"Warehouse has been rented"})
 
-@app.route('/search_warehouse',methods=['POST'])
-def search_warehouse():
-    # try:
-    #     data = request.get_json()  
-    pass
-
-
 def calculate_distance(lat1,lon1,lat2,lon2):
     R = 6373.0
     dlon = lon2 - lon1
@@ -523,6 +518,35 @@ def calculate_distance(lat1,lon1,lat2,lon2):
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
     return R * c
+
+def Sort(sub_li): 
+    return(sorted(sub_li, key = lambda x: x[1]))
+
+#-----------------------------------------
+@app.route('/search_warehouse',methods=['POST'])
+def search_warehouse():
+    try:
+        data = request.get_json()
+        user_loc_lat , user_loc_lon = data['latitude'],data['longitude']   
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM WAREHOUSE_ADDRESS;")
+        warehouses = cursorObj.fetchall()
+        warehouse_list=[]
+        for warehouse in warehouses:
+            temp_list = []
+            temp_list.append(warehouse[0])
+            distance = calculate_distance(user_loc_lat , user_loc_lon,warehouse[1],warehouse[2])
+            temp_list.append(distance)
+            warehouse_list.append(temp_list)
+        sorted_list = Sort(warehouse_list)
+        optimal_data = {"list":sorted_list}
+        optimal_data['status'] = "OK" 
+    except Exception as e:
+        optimal_data['status'] = "FAIL"
+    return jsonify(optimal_data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
