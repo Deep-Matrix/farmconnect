@@ -77,6 +77,7 @@ def create_user():
 
 @app.route('/registerbuyer', methods=['POST'])
 def registerbuyer():
+    data={}
     try:
         data = request.get_json()
         hashed_password = generate_password_hash(data['password'], method='sha256')
@@ -97,6 +98,7 @@ def login_farmer():
     if not auth or not auth.username or not auth.password:
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
+
     #user = User.query.filter_by(name=auth.username).first()
     conn = sqlite3.connect("datahouse.db")
     cursorObj = conn.cursor()
@@ -104,6 +106,8 @@ def login_farmer():
     cursorObj.execute("SELECT * FROM FARMER WHERE PHONENUMBER ==?;",entities)
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     current_user = cursorObj.fetchone()
+    if not current_user:
+        return jsonify({"status":"FAIL"})
 
     if current_user == 'null':
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
@@ -140,6 +144,8 @@ def login_buyer():
     cursorObj.execute("SELECT * FROM BUYER WHERE PHONENUMBER ==?;",entities)
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     current_user = cursorObj.fetchone()
+    if not current_user:
+        return jsonify({"status":"FAIL"})
 
     if current_user == 'null':
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
@@ -604,6 +610,32 @@ def search_warehouse():
     except Exception as e:
         optimal_data['status'] = "FAIL"
     return jsonify(optimal_data)
+
+
+@app.route('/farmer_details',methods=['POST']) 
+def farmer_details():
+    try:
+        conn = connect()
+        cursorObj = conn.cursor()
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
+        cursorObj.execute("SELECT * FROM FARMER WHERE FARMERID ==?;",(value,))
+        user_data = cursorObj.fetchone()
+        new_dict={}
+        new_dict['userid'] = user_data['FARMERID']
+        new_dict['fullname'] = user_data['FULLNAME']
+        new_dict['address'] = user_data['ADDRESS']
+        new_dict['imagelink'] = user_data['IMAGELINK']
+        new_dict['imagelink'] = user_data['AADHAR']
+        new_dict['datejoined'] = user_data['DATEJOINED']
+        new_dict['phonenumber'] = user_data['PHONENUMBER']
+        new_dict['status'] = 'OK'
+    except Exception as e:
+        new_dict={}
+        new_dict['status']="FAIL"
+        new_dict['error']=str(e) 
+    return jsonify(new_dict)
 
 
 if __name__ == '__main__':
