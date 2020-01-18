@@ -18,8 +18,8 @@ def login():
 def index():
     length = 0
     try:
-        data = requests.get('http://127.0.0.1:5000/streamproduce').json()
-        length = int(requests.get('http://127.0.0.1:5000/streamproducelength').json()['length'])
+        data = requests.get('http://127.0.0.1:6000/list_warehouse').json()
+        #length = int(requests.get('http://127.0.0.1:6000/streamproducelength').json()['length'])
     except Exception as e:
         print(e)
     arrayt = []
@@ -33,7 +33,7 @@ def produceinformation(id):
     data = {}
     user = {}
     try:
-        data = requests.get("http://127.0.0.1:5000/getproduce?id="+str(id)).json()
+        data = requests.get("http://127.0.0.1:6000/getproduce?id="+str(id)).json()
     except Exception as e:
         print(e)
     return render_template('produce.html', title=str(id)+" - Details", product=data, user=None)
