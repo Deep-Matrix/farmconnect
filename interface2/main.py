@@ -94,7 +94,6 @@ def registerbuyer():
 
 @app.route('/login_farmer',methods=['POST'])
 def login_farmer():
-
     auth = request.authorization
     data = request.get_json()
     if not auth or not auth.username or not auth.password:
