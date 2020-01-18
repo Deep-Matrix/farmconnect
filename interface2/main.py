@@ -132,6 +132,13 @@ def login_farmer():
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
     try:
+        data = request.get_json()
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        entities = ((str(uuid.uuid4()),data['farmeruserid'],data['quantity'],data['availablequantity'],data['cost'],data['sold'],data['description'],data['quality_review'],data['no_times_bought']))
+        cursorObj.execute("INSERT INTO FARMER_PRODUCE(PRODUCEID,FARMERUSERID,QUANTITY,AVAILABLEQUANTITY,COST,SOLD,DESCRIPTION,QUALITY_REVIEW,NO_TIMES_BOUGHT) VALUES (?,?,?,?,?,?,?,?,?);",entities)
+        conn.commit()
+        #return jsonify({'message' : 'Produce Added!'})
     except Exception as e:
         return jsonify({"alert" : "error!"})
     return jsonify({'message' : 'Produce Added!'})
