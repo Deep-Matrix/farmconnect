@@ -5,7 +5,7 @@ import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from functools import wraps
-
+from math import sin, cos, sqrt, atan2
 from interface import stream_produce, create_farmer
 
 app = Flask(__name__)
@@ -449,7 +449,11 @@ def add_warehouse():
         data = request.get_json()
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        u_id = str(uuid.uuid4())
+        entities = ((u_id,data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
+        conn.commit()
+        address_ent = ((u_id,data['latitude'],data['longitude']))
         cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
@@ -502,6 +506,23 @@ def rent_warehouse():
     except Exception as e:
         return jsonify({'message':str(e)})
     return jsonify({"message":"Warehouse has been rented"})
+
+@app.route('/search_warehouse',methods=['POST'])
+def search_warehouse():
+    # try:
+    #     data = request.get_json()  
+    pass
+
+
+def calculate_distance(lat1,lon1,lat2,lon2):
+    R = 6373.0
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
 
 if __name__ == '__main__':
     app.run(debug=True)

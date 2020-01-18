@@ -116,4 +116,14 @@ conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_TRANSACTION
             )
 conn.commit()
 
+conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_ADDRESS
+            (ID CHAR(500) PRIMARY KEY NOT NULL,
+              LATITUDE CHAR(500) NOT NULL,
+              LONGITUDE CHAR(500) NOT NULL,
+              FOREIGN KEY (ID) REFERENCES WAREHOUSE(WAREHOUSE_ID)
+            );'''  
+            )
+conn.commit()
+
+
 conn.close()
