@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, make_response
-from datetime import datetime
+import datetime
 import sqlite3
+import os
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -70,7 +71,8 @@ def create_user():
         data['password'] = generate_password_hash(data['password'], method='sha256')
         conn = connect()
         return jsonify(create_farmer.create(conn, data))
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({"message":"post required", "status":"fail"})
 
 @app.route('/registerbuyer', methods=['POST'])
@@ -89,7 +91,7 @@ def registerbuyer():
     return jsonify({'message' : 'New Buyer created!'})
 
 
-@app.route('/login_farmer')
+@app.route('/login_farmer',methods=['POST'])
 def login_farmer():
 
     auth = request.authorization
@@ -100,7 +102,7 @@ def login_farmer():
     #user = User.query.filter_by(name=auth.username).first()
     conn = sqlite3.connect("datahouse.db")
     cursorObj = conn.cursor()
-    entities = ((data['phone_no']),)
+    entities = ((auth.username),)
     cursorObj.execute("SELECT * FROM FARMER WHERE PHONENUMBER ==?;",entities)
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     current_user = cursorObj.fetchone()
@@ -113,7 +115,7 @@ def login_farmer():
     xx={}
     try:
         if check_password_hash(userpassword, auth.password):
-            entities = ((data['phone_no']),)
+            entities = ((auth.username),)
             cursorObj.execute("SELECT FARMERID FROM FARMER WHERE PHONENUMBER ==?;",entities)
             # data = jwt.decode(token, app.config['SECRET_KEY'])
             farmerid = cursorObj.fetchone() 
@@ -122,6 +124,7 @@ def login_farmer():
             return jsonify({'token' : token.decode('UTF-8')})
     except Exception as e:
         xx['msg']='400'
+        xx['error'] = str(e)
         return jsonify(xx)
 
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
