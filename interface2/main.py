@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, make_response
-from datetime import date
+from datetime import datetime
 import sqlite3
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-import datetime
 from functools import wraps
 
 from interface import stream_produce, create_farmer
@@ -63,6 +62,7 @@ def token_required(f):
 #     "message":"New User Created./Error Message"
 # }
 
+#tested - ok
 @app.route('/registerfarmer', methods=['GET', 'POST'])
 def create_user():
     try:
@@ -73,8 +73,24 @@ def create_user():
     except:
         return jsonify({"message":"post required", "status":"fail"})
 
-@app.route('/login')
-def login():
+@app.route('/registerbuyer', methods=['POST'])
+def registerbuyer():
+    try:
+        data = request.get_json()
+        hashed_password = generate_password_hash(data['password'], method='sha256')
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
+        cursorObj.execute("INSERT INTO BUYER(BUYERID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
+        conn.commit()
+    except Exception as e:
+        data['error'] = str(e)
+        return jsonify({"alert" : str(e)})
+    return jsonify({'message' : 'New Buyer created!'})
+
+
+@app.route('/login_farmer')
+def login_farmer():
 
     auth = request.authorization
     data = request.get_json()
@@ -111,30 +127,120 @@ def login():
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
 
-#Tushar
+#Tushar 
+#tested - ok
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
     try:
-        conn = sqlite3.connect("datahouse.db")
-        cursorObj = conn.cursor()
     except Exception as e:
-        data['error'] = str(e)
-    return jsonify(data)
+        return jsonify({"alert" : "error!"})
+    return jsonify({'message' : 'Produce Added!'})
 
-#tushar
+
+
 @app.route('/buy_produce',methods=['POST'])
 def buy_produce():
-    pass
+    try:
+        data = request.get_json()
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        time_string = now.strftime("%H:%M:%S")
+        entities = ((data['buyer_id',data['produce_id'],data['quantity'],date_string,time_string))
+        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?);",entities)
+        conn.commit()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID ==?;",(data['produce_id'],))
+        previous_quantity = cursorObj.fetchone()[3]  #previous quantity of produce
+        previous_times_bought = cursorObj.fetchone()[8] #previous no of times bought
+        bought_quantity = data['quantity']
+        final = previous_quantity - bought_quantity
+        entities = ((final,data['produce_id']))
+        cursorObj.execute("UPDATE FARMER_PRODUCE SET AVAILABLEQUANTITY = ? WHERE PRODUCEID == ?",entities)
+        conn.commit()
+        updated_times_bought = 1 + previous_times_bought
+        entities = ((updated_times_bought,data['produce_id']))
+        cursorObj.execute("UPDATE FARMER_PRODUCE SET NO_TIMES_BOUGHT = ? WHERE PRODUCEID == ?",entities)
+        conn.commit()
+        if(previous_quantity == bought_quantity)
+            value_boolean = True
+            entities = ((value_boolean,data['produce_id']))
+            cursorObj.execute("UPDATE FARMER_PRODUCE SET SOLD = ? WHERE PRODUCEID == ?",entities) 
+        conn.commit()
+        # current_user = cursorObj.fetchone()
+        # cursorObj.execute("SELECT * FROM FARMER_PRODUCE;")
+        # vals = cursorObj.fetchall()
+        # li = []
+        # for val in vals:
+        #     li.append(val)
 
-#rugved
+        # data['produces_bought'] = li
+        # conn.commit()
+    #return jsonify(data)
+    except Exception as e:
+        return jsonify({'message':str(e)})
+    return jsonify({"message":"Warehouse has been rented"})    
+
+        #if current_user == 'null':
+        #return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        #new_quantity = current_user
+    ###except Exception as e:
+    ###    print(e)
+    #return jsonify({'mess' : current_user},)
+    ###return jsonify(data)
+
+
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
     pass
 
-#vinit
+#tested - ok
+@app.route('/displayfarmers',methods=['POST'])
+def displayfarmer():
+    try:
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER;")
+        vals = cursorObj.fetchall()
+        data = {}
+        list_of_farmers =[]
+        for val in vals:
+            list_of_farmers.append(val)
+        data['farmers'] = list_of_farmers
+        conn.commit()
+    except Exception as e:
+        return {"status":"Fail", "message":str(e)}
+    return jsonify(data)
+
+
 @app.route('/put_review',methods=['POST'])
 def put_review():
-    pass
+    try:
+        data = request.get_json
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        date_string = datetime.today()
+        time_string = now.strftime("%H:%M:%S")
+        entities((data['buyer_id'],data['produce_id'],data['rating'],date_string,time_string))
+        cursorObj.execute("INSERT INTO QUALITY_REVIEW(BUYERID,PRODUCEID,RATING,DATE,TIME) VALUES = (?,?,?,?,?);",entities)
+        conn.commit()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID ==?;",(data['produce_id'],))
+        previous_rating = cursorObj.fetchone()[7]  #previous review
+        #latest_rating = data['rating']
+        cursorObj.execute("SELECT * FROM QUALITY_REVIEW WHERE PRODUCEID ==?;",(data['produce_id'],))
+        vals = cursorObj.fetchall()
+        data_new = {}
+        list_of_reviews =[]
+        for val in vals:
+            list_of_reviews.append(val)
+        data_new['reviews'] = list_of_reviews
+        # entities=((new,data['produce_id']))
+        # cursorObj.execute("UPDATE FARMER_PRODUCE SET AVAILABLE_SIZE = ? WHERE PRODUCEID == ?",entities)
+        #return jsonify({"message": new})
+        conn.commit() 
+    except Exception as e:
+        return jsonify({'message':str(e)})
+    return jsonify(data_new)
+    #return jsonify({'message' : 'Review Added!'})
+
 
 #talha
 @app.route('/list_review',methods=['POST'])
@@ -172,6 +278,16 @@ def farmer_history():
     return jsonify(data)
 
 
+@app.route('/cost_updation',methods=['POST'])
+def cost_updation():
+    data = request.get_json
+    conn = sqlite3.connect("datahouse.db")
+    cursorObj = conn.cursor()
+    entities = ((data['cost'],data['produce_id']))
+    cursorObj.execute("UPDATE FARMER_PRODUCE SET COST = ? WHERE PRODUCEID == ?",entities)
+    conn.commit()
+    return jsonify({"message" : "COST UPDATED"})
+
 #vinit
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
@@ -182,19 +298,18 @@ def buyer_history():
 # def search():  #from list produce
 #     pass
 
-#rugved
+
 @app.route('/category_sort',methods=['POST'])
 def category_sort():
     pass
 
 
-#rugved
 @app.route('/price_sort',methods=['POST'])
 def price_sort():
     pass
 
 
-#rugved
+
 @app.route('/review_sort',methods=['POST'])
 def review_sort():
     pass
@@ -252,7 +367,7 @@ def getproduce():
     conn = connect()
     return jsonify(stream_produce.item(conn, reqid))
 
-#"228cfd8c-209c-4117-9e6f-0130571053b8" --> user id
+#tested - ok
 @app.route('/register_owner', methods=['POST'])
 def register_owner():
     try:
@@ -263,15 +378,12 @@ def register_owner():
         entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
         cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
-        cursorObj.execute("SELECT * FROM WAREHOUSE_OWNER;")
-        vals = cursorObj.fetchone()[0]
-        data['val'] = vals
     except Exception as e:
         data['error'] = str(e)
         return data
     return jsonify({'message' : 'New user created!'})
-    # return data
 
+#tested - ok
 @app.route('/add_warehouse',methods=['POST'])
 def add_warehouse():
     try:
@@ -286,6 +398,7 @@ def add_warehouse():
         return data
     return jsonify({'message' : 'New Warehouse Added!'})
 
+#tested - ok
 @app.route('/list_warehouse',methods=['POST'])
 def list_warehouse():
     try:
@@ -303,6 +416,7 @@ def list_warehouse():
         return jsonify({"alert" : "Error!"})    
     return jsonify(data)
 
+# tested - ok
 @app.route('/rent_warehouse',methods=['POST'])
 def rent_warehouse():
     try:
@@ -311,41 +425,24 @@ def rent_warehouse():
         farmer_id = data['farmer_id']
         produce_id = data['produce_id']
         produce_quantity = data['produce_quantity']
-        date = data['date']
-        time = data['time'] 
+        date_string = datetime.today()
+        time_string = now.strftime("%H:%M:%S")
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date,time))
-        cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
+        entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date_string,time_string))
+        cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(TRANSACTION_ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?,?);",entities)
         conn.commit()
         cursorObj.execute("SELECT * FROM WAREHOUSE WHERE WAREHOUSE_ID ==?;",(warehouse_id,))
-        row = cursorObj.fetchone()[0]
-        id_x = row[0]
-        new_data = row[2]-produce_quantity
-        entities=((new_data,id_x))
-        cursorObj.execute("UPDATE WAREHOUSE SET AVAILABLE_SIZE = ? WHERE WAREHOUSE_ID == ?",entities) 
-        conn.commit()
+        row = cursorObj.fetchone()[2]
+        new_data = row
+        new_quantity = new_data - int(produce_quantity)
+        entities=((new_quantity,warehouse_id))
+        cursorObj.execute("UPDATE WAREHOUSE SET AVAILABLE_SIZE = ? WHERE WAREHOUSE_ID == ?",entities)
+        # return jsonify({"message": new_quantity})
+        conn.commit() 
     except Exception as e:
-        return jsonify({'message':"Error"})
+        return jsonify({'message':str(e)})
     return jsonify({"message":"Warehouse has been rented"})
-
-@app.route('/list_owner_warehouse',methods=['POST'])
-def list_owner_warehouses():
-    try:
-        data={}
-        conn = sqlite3.connect('datahouse.db')
-        cursorObj = conn.cursor()
-        data = request.get_json()
-        owner_id = data['owner_id']
-        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE OWNER_ID ==?;",(owner_id,))
-        rows = cursorObj.fetchall()
-        li=[]
-        for row in rows:
-            li.append(row)
-        data['warehouses'] = li
-    except Exception as e:
-        data['error'] = str(e)
-    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
