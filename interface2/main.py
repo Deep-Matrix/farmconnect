@@ -73,7 +73,7 @@ def create_user():
         return jsonify(create_farmer.create(conn, data))
     except Exception as e:
         print(e)
-        return jsonify({"message":"post required", "status":"fail"})
+        return jsonify({"message":"post required", "status":"fail","error":str(e)})
 
 @app.route('/registerbuyer', methods=['POST'])
 def registerbuyer():

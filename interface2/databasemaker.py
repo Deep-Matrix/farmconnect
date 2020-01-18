@@ -22,13 +22,14 @@ conn.commit() # Checked. OK
 conn.execute('''CREATE TABLE IF NOT EXISTS FARMER_PRODUCE
             (PRODUCEID CHAR(500) PRIMARY KEY NOT NULL,
               FARMERUSERID CHAR(500) NOT NULL,
-              aadhar = IntegerField('Image Link', validators=[DataRequired()])QUANTITY INT NOT NULL,
+              QUANTITY INT NOT NULL,
               AVAILABLEQUANTITY INT NOT NULL,
               COST INT,
               SOLD BOOLEAN NOT NULL,
               DESCRIPTION CHAR(140) NOT NULL,
               QUALITY_REVIEW INT,
               NO_TIMES_BOUGHT INT NOT NULL,
+              PRODUCENAME TEXT DEFAULT "NoName",
               FOREIGN KEY (FARMERUSERID) REFERENCES FARMER (FARMERID)
               );'''
             ) # Checked. OK
