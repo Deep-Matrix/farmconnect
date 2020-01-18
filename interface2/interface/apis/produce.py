@@ -11,8 +11,8 @@ def stream(conn):
 
 def specific(conn, reqid):
     data = dict()
-    query = "SELECT * FROM FARMER_PRODUCE WHERE SOLD = 'False' AND PRODUCEID = " + str(reqid)
-    cursor = conn.execute(query)
+    query = "SELECT * FROM FARMER_PRODUCE WHERE SOLD = 'False' AND PRODUCEID = ?"
+    cursor = conn.execute(query, (str(reqid),))
     rows = cursor.fetchall()
     return rows
 

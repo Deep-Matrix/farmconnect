@@ -215,27 +215,26 @@ def sell_produce():
 def buy_produce():
     try:
         data = request.get_json()
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
         date_string = datetime.datetime.now().strftime("%m/%d/%Y")
         time_string = datetime.datetime.now().strftime("%H:%M:%S")
         entities = ((str(uuid.uuid4()),data['buyer_id'],data['produce_id'],data['quantity'],date_string,time_string))
         cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
-        conn.commit()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID == ?;",(data['produce_id'],))
         tup = cursorObj.fetchone()  #previous quantity of produce
         previous_quantity = tup[3]
         previous_times_bought = tup[8]
         bought_quantity = int(data['quantity'])
         final = previous_quantity - bought_quantity
+        if final < 0:
+            return jsonify({"STATUS" : "FAIL","message":"Not Enough Quantity"})
         entities = ((final,data['produce_id']))
         cursorObj.execute("UPDATE FARMER_PRODUCE SET AVAILABLEQUANTITY = ? WHERE PRODUCEID == ?",entities)
-        conn.commit()
         updated_times_bought = 1 + previous_times_bought
         entities = ((updated_times_bought,data['produce_id']))
         cursorObj.execute("UPDATE FARMER_PRODUCE SET NO_TIMES_BOUGHT = ? WHERE PRODUCEID == ?",entities)
-        conn.commit()
-        if(previous_quantity == bought_quantity):
+        if final == 0:
             value_boolean = True
             entities = ((value_boolean,data['produce_id']))
             cursorObj.execute("UPDATE FARMER_PRODUCE SET SOLD = ? WHERE PRODUCEID == ?",entities) 
