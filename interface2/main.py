@@ -127,7 +127,7 @@ def login_farmer():
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
 
-#Tushar 
+ 
 #tested - ok
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
@@ -178,10 +178,11 @@ def buy_produce():
         return jsonify({"STATUS" : "FAIL","message":str(e)})
     return jsonify({"STATUS" : "OK","message":"Bought successfully"})    
 
-
+#tested-ok
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
     try:
+        data={}
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE;")
@@ -244,7 +245,7 @@ def put_review():
     return jsonify({"VALS" : avg, 'message' : 'Review Added!'})
 
 
-#talha
+#tested - ok
 @app.route('/list_review',methods=['POST'])
 def list_reviews():
     data={}
@@ -261,21 +262,21 @@ def list_reviews():
         data['errors'] = str(e)
     return jsonify(data)
 
-#talha
-@app.route('/farmer_history')
+#tested-ok
+@app.route('/farmer_history',methods=['POST'])
 def farmer_history():
     try:
-        conn = connect
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         data = request.get_json()
-        entities=((data['farmerid']))
-        cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCE_ID=(SELECT PRODUCE_ID FROM FARMER_PRODUCE WHERE FARMER_ID ==?)",entities)
+        cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCEID=(SELECT PRODUCEID FROM FARMER_PRODUCE WHERE FARMERUSERID ==?)",(data['farmer_id'],))
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
             li.append(val)
         data['list'] = li
     except Exception as e:
+        data={}
         data['errors'] = str(e)
     return jsonify(data)
 
@@ -290,15 +291,15 @@ def cost_updation():
     conn.commit()
     return jsonify({"message" : "COST UPDATED"})
 
-#vinit
+#tested-ok
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
     try:
-        data = request.get_json
+        data = request.get_json()
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        entities = ((data['buyer_id']))
-        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID ==?;",entities)
+        # entities = (())
+        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID == ?;",(data['buyer_id'],))
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
@@ -306,6 +307,7 @@ def buyer_history():
         data['buyer_history'] = li
         data['status'] = "OK"
     except Exception as e:
+        data['error'] =  str(e)
         data['status'] = "FAIL"
     return jsonify(data)
 
@@ -332,14 +334,14 @@ def category_sort():
         data['status'] = "FAIL"
     return jsonify(data)
 
-
+#tested - ok
 @app.route('/price_sort',methods=['POST'])
 def price_sort():
     try:
-        data = request.get_json
+        data = {}
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;",entities)
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;")
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
@@ -348,17 +350,18 @@ def price_sort():
         data['price_products'] = li 
     except Exception as e:
         data['status'] = "FAIL"
+        data['error'] = str(e)
     return jsonify(data)
 
 
-
+#tested-ok
 @app.route('/review_sort',methods=['POST'])
 def review_sort():
     try:
-        data = request.get_json
+        data = {}
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;",entities)
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;")
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
@@ -367,6 +370,7 @@ def review_sort():
         data['review_products'] = li 
     except Exception as e:
         data['status'] = "FAIL"
+        data['error'] = str(e)
     return jsonify(data)
 
 # This api will be used to display available produce.
