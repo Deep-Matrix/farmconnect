@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = 'thisissecret'
 
 def connect():
     # Sharing same reference across project to save memory and also, it makes updating database path easier.
-    conn = sqlite3.connect("datahouse.db")
+    conn = sqlite3.connect(os.path.realpath("datahouse.db"))
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -89,8 +89,8 @@ def registerbuyer():
     return jsonify({'message' : 'New Buyer created!'})
 
 
-@app.route('/login')
-def login():
+@app.route('/login_farmer')
+def login_farmer():
 
     auth = request.authorization
     data = request.get_json()
@@ -132,13 +132,6 @@ def login():
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
     try:
-        data = request.get_json()
-        conn = sqlite3.connect("datahouse.db")
-        cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['farmeruserid'],data['quantity'],data['availablequantity'],data['cost'],data['sold'],data['description'],data['quality_review'],data['no_times_bought']))
-        cursorObj.execute("INSERT INTO FARMER_PRODUCE(PRODUCEID,FARMERUSERID,QUANTITY,AVAILABLEQUANTITY,COST,SOLD,DESCRIPTION,QUALITY_REVIEW,NO_TIMES_BOUGHT) VALUES (?,?,?,?,?,?,?,?,?);",entities)
-        conn.commit()
-        #return jsonify({'message' : 'Produce Added!'})
     except Exception as e:
         return jsonify({"alert" : "error!"})
     return jsonify({'message' : 'Produce Added!'})
@@ -178,10 +171,23 @@ def buy_produce():
         return jsonify({"STATUS" : "FAIL","message":str(e)})
     return jsonify({"STATUS" : "OK","message":"Bought successfully"})    
 
-#rugved
+
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
-    pass
+    try:
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE;")
+        li = []
+        vals = cursorObj.fetchall()
+        for val in vals:
+            li.append(val)
+        data['list'] = li
+        data['status'] = "OK"
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
+
 
 #tested - ok
 @app.route('/displayfarmers',methods=['POST'])
@@ -280,8 +286,21 @@ def cost_updation():
 #vinit
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
-    pass
-
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        entities = ((data['buyer_id']))
+        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID ==?;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['buyer_history'] = li
+        data['status'] = "OK"
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 # @app.route('/search_produce',methods=['POST'])  TO-BE DONE LATER
 # def search():  #from list produce
@@ -290,19 +309,58 @@ def buyer_history():
 
 @app.route('/category_sort',methods=['POST'])
 def category_sort():
-    pass
-
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        entities = ((data['category']))
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE TYPE ==? AND SOLD == False;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['status'] = "OK"
+        data['categorical_products'] = li 
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 
 @app.route('/price_sort',methods=['POST'])
 def price_sort():
-    pass
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['status'] = "OK"
+        data['price_products'] = li 
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 
 
 @app.route('/review_sort',methods=['POST'])
 def review_sort():
-    pass
+    try:
+        data = request.get_json
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;",entities)
+        vals = cursorObj.fetchall()
+        li = []
+        for val in vals:
+            li.append(val)
+        data['status'] = "OK"
+        data['review_products'] = li 
+    except Exception as e:
+        data['status'] = "FAIL"
+    return jsonify(data)
 
 # This api will be used to display available produce.
 # return:

@@ -142,8 +142,8 @@ def rent_warehouse():
         farmer_id = data['farmer_id']
         produce_id = data['produce_id']
         produce_quantity = data['produce_quantity']
-        date = data['date']
-        time = data['time'] 
+        date = datetime.date() 
+        time = datetime.time() 
         conn = sqlite3.connect('../interface2/datahouse.db')
         cursorObj = conn.cursor()
         entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date,time))
@@ -162,23 +162,7 @@ def rent_warehouse():
     return jsonify({"message":"Warehouse has been rented"})
 
 
-@app.route('/list_owner_warehouse',methods=['POST'])
-def list_owner_warehouses():
-    try:
-        data={}
-        conn = sqlite3.connect('datahouse.db')
-        cursorObj = conn.cursor()
-        data = request.get_json()
-        owner_id = data['owner_id']
-        cursorObj.execute("SELECT * FROM WAREHOUSE WHERE OWNER_ID ==?;",(owner_id,))
-        rows = cursorObj.fetchall()
-        li=[]
-        for row in rows:
-            li.append(row)
-        data['warehouses'] = li
-    except Exception as e:
-        data['error'] = str(e)
-    return jsonify(data)
+
 
 # @app.route('/',methods=['POST'])
 # def register_warehouse():
