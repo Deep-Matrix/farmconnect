@@ -6,7 +6,8 @@ import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from functools import wraps
-
+from math import sin, cos, sqrt, atan2
+import os
 from interface import stream_produce, create_farmer
 
 app = Flask(__name__)
@@ -130,7 +131,7 @@ def login_farmer():
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
 
-#Tushar 
+ 
 #tested - ok
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
@@ -181,10 +182,11 @@ def buy_produce():
         return jsonify({"STATUS" : "FAIL","message":str(e)})
     return jsonify({"STATUS" : "OK","message":"Bought successfully"})    
 
-
+#tested-ok
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
     try:
+        data={}
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE;")
@@ -247,7 +249,7 @@ def put_review():
     return jsonify({"VALS" : avg, 'message' : 'Review Added!'})
 
 
-#talha
+#tested - ok
 @app.route('/list_review',methods=['POST'])
 def list_reviews():
     data={}
@@ -264,21 +266,21 @@ def list_reviews():
         data['errors'] = str(e)
     return jsonify(data)
 
-#talha
-@app.route('/farmer_history')
+#tested-ok
+@app.route('/farmer_history',methods=['POST'])
 def farmer_history():
     try:
-        conn = connect
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         data = request.get_json()
-        entities=((data['farmerid']))
-        cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCE_ID=(SELECT PRODUCE_ID FROM FARMER_PRODUCE WHERE FARMER_ID ==?)",entities)
+        cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCEID=(SELECT PRODUCEID FROM FARMER_PRODUCE WHERE FARMERUSERID ==?)",(data['farmer_id'],))
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
             li.append(val)
         data['list'] = li
     except Exception as e:
+        data={}
         data['errors'] = str(e)
     return jsonify(data)
 
@@ -293,15 +295,15 @@ def cost_updation():
     conn.commit()
     return jsonify({"message" : "COST UPDATED"})
 
-#vinit
+#tested-ok
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
     try:
-        data = request.get_json
+        data = request.get_json()
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        entities = ((data['buyer_id']))
-        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID ==?;",entities)
+        # entities = (())
+        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID == ?;",(data['buyer_id'],))
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
@@ -309,6 +311,7 @@ def buyer_history():
         data['buyer_history'] = li
         data['status'] = "OK"
     except Exception as e:
+        data['error'] =  str(e)
         data['status'] = "FAIL"
     return jsonify(data)
 
@@ -335,14 +338,14 @@ def category_sort():
         data['status'] = "FAIL"
     return jsonify(data)
 
-
+#tested - ok
 @app.route('/price_sort',methods=['POST'])
 def price_sort():
     try:
-        data = request.get_json
+        data = {}
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;",entities)
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;")
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
@@ -351,17 +354,18 @@ def price_sort():
         data['price_products'] = li 
     except Exception as e:
         data['status'] = "FAIL"
+        data['error'] = str(e)
     return jsonify(data)
 
 
-
+#tested-ok
 @app.route('/review_sort',methods=['POST'])
 def review_sort():
     try:
-        data = request.get_json
+        data = {}
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;",entities)
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;")
         vals = cursorObj.fetchall()
         li = []
         for val in vals:
@@ -370,6 +374,7 @@ def review_sort():
         data['review_products'] = li 
     except Exception as e:
         data['status'] = "FAIL"
+        data['error'] = str(e)
     return jsonify(data)
 
 # This api will be used to display available produce.
@@ -448,7 +453,11 @@ def add_warehouse():
         data = request.get_json()
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        u_id = str(uuid.uuid4())
+        entities = ((u_id,data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
+        cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
+        conn.commit()
+        address_ent = ((u_id,data['latitude'],data['longitude']))
         cursorObj.execute("INSERT INTO WAREHOUSE(WAREHOUSE_ID,OWNER_ID,AVAILABLE_SIZE,PHOTO_URL,LOCATION,COST) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
@@ -473,6 +482,7 @@ def list_warehouse():
     except Exception as e:
         return jsonify({"alert" : "Error!"})    
     return jsonify(data)
+
 
 # tested - ok
 @app.route('/rent_warehouse',methods=['POST'])
@@ -501,6 +511,45 @@ def rent_warehouse():
     except Exception as e:
         return jsonify({'message':str(e)})
     return jsonify({"message":"Warehouse has been rented"})
+
+def calculate_distance(lat1,lon1,lat2,lon2):
+    R = 6373.0
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
+
+def Sort(sub_li): 
+    return(sorted(sub_li, key = lambda x: x[1]))
+
+#-----------------------------------------
+@app.route('/search_warehouse',methods=['POST'])
+def search_warehouse():
+    try:
+        data = request.get_json()
+        user_loc_lat , user_loc_lon = data['latitude'],data['longitude']   
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        cursorObj.execute("SELECT * FROM WAREHOUSE_ADDRESS;")
+        warehouses = cursorObj.fetchall()
+        warehouse_list=[]
+        for warehouse in warehouses:
+            temp_list = []
+            temp_list.append(warehouse[0])
+            distance = calculate_distance(user_loc_lat , user_loc_lon,warehouse[1],warehouse[2])
+            temp_list.append(distance)
+            warehouse_list.append(temp_list)
+        sorted_list = Sort(warehouse_list)
+        optimal_data = {"list":sorted_list}
+        optimal_data['status'] = "OK" 
+    except Exception as e:
+        optimal_data['status'] = "FAIL"
+    return jsonify(optimal_data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

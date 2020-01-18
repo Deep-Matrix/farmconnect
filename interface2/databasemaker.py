@@ -54,6 +54,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS QUALITY_REVIEW
               RATING INT NOT NULL,
               DATE CHAR(12) NOT NULL,
               TIME CHAR(10) NOT NULL,
+              PRODUCENAME TEXT DEFAULT 'NO NAME',
               FOREIGN KEY (PRODUCEID) REFERENCES PRODUCE (PRODUCEID),
               FOREIGN KEY (BUYERID) REFERENCES BUYER (BUYERID)
               );'''
@@ -115,5 +116,15 @@ conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_TRANSACTION
             );'''
             )
 conn.commit()
+
+conn.execute('''CREATE TABLE  IF NOT EXISTS WAREHOUSE_ADDRESS
+            (ID CHAR(500) PRIMARY KEY NOT NULL,
+              LATITUDE CHAR(500) NOT NULL,
+              LONGITUDE CHAR(500) NOT NULL,
+              FOREIGN KEY (ID) REFERENCES WAREHOUSE(WAREHOUSE_ID)
+            );'''  
+            )
+conn.commit()
+
 
 conn.close()
