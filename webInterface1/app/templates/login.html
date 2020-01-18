@@ -28,6 +28,8 @@
 			<link rel="stylesheet" type="text/css" href="css/main.css"> -->
 			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css')}}">
 			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css')}}">
+			<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
 		<!--===============================================================================================-->
 		</head>
 <body>
@@ -36,14 +38,14 @@
 		<div class="container-login100">
 			<div class="wrap-login100">
 				<div class="login100-pic js-tilt" data-tilt>
-					<img src="{{ url_for('static', filename='images/img-01.png')}}" alt="IMG">
+					<img src="{{ url_for('static', filename='images/img-01.jpg')}}" class = "rounded" alt="IMG">
 					
 				</div>
 
 				<form class="login100-form validate-form" method="POST" novalidate>
 					{{ form.hidden_tag() }}
 					<span class="login100-form-title">
-						Login
+						Farmer Login
 					</span>
 
 					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">

@@ -73,7 +73,7 @@ def create_user():
         return jsonify(create_farmer.create(conn, data))
     except Exception as e:
         print(e)
-        return jsonify({"message":"post required", "status":"fail"})
+        return jsonify({"message":"post required", "status":"fail","error":str(e)})
 
 @app.route('/registerbuyer', methods=['POST'])
 def registerbuyer():
@@ -217,8 +217,8 @@ def buy_produce():
         data = request.get_json()
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        date_string = datetime.now().strftime("%m/%d/%Y")
-        time_string = datetime.now().strftime("%H:%M:%S")
+        date_string = datetime.datetime.now().strftime("%m/%d/%Y")
+        time_string = datetime.datetime.now().strftime("%H:%M:%S")
         entities = ((str(uuid.uuid4()),data['buyer_id'],data['produce_id'],data['quantity'],date_string,time_string))
         cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         conn.commit()
