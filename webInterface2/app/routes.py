@@ -4,12 +4,18 @@ from app.forms import LoginForm
 import requests
 import json
 
-def validateLogin():
+def isLoggedIn():
+    loggedIn = False
     try:
         data = session['token']
-    except:
-        data = ""
-    return data
+        headers = {'token': data}
+        r = requests.post("http://127.0.0.1:5000/buyer_details",headers=headers).json()
+        print(r)
+        loggedIn = True    
+    except Exception as e:
+        loggedIn = False
+        print(str(e))
+    return loggedIn
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -22,6 +28,7 @@ def login():
         if r.text == "Could not verify":
             return redirect('/login')
         else:
+            print(r.text)
             data = json.loads(r.text)
             session['token'] = data['token']
             print(session['token'])
@@ -31,17 +38,19 @@ def login():
 @app.route('/')
 @app.route('/index')
 def index():
-    length = 0
-    try:
-        data = requests.get('http://127.0.0.1:5000/streamproduce').json()
-        length = int(requests.get('http://127.0.0.1:5000/streamproducelength').json()['length'])
-    except Exception as e:
-        print(e)
-    arrayt = []
-    for i in range(length):
-        arrayt.append(data[str(i)])
-    
-    return render_template('index.html', title='Home Page', produce=arrayt)
+    if isLoggedIn():
+        length = 0
+        try:
+            data = requests.get('http://127.0.0.1:5000/streamproduce').json()
+            length = int(requests.get('http://127.0.0.1:5000/streamproducelength').json()['length'])
+        except Exception as e:
+            print(e)
+        arrayt = []
+        for i in range(length):
+            arrayt.append(data[str(i)])
+        
+        return render_template('index.html', title='Home Page', produce=arrayt)
+    return redirect('/login')
 
 @app.route('/produce/<id>')
 def produceinformation(id):
@@ -51,5 +60,5 @@ def produceinformation(id):
         data = requests.get("http://127.0.0.1:5000/getproduce?id="+str(id)).json()
     except Exception as e:
         print(e)
-    return render_template('produce.html', title=str(id)+" - Details", product=data, user=None)
+    return render_template('produce.html', title=str(id)+" - Details", product=data, user=session)
         
