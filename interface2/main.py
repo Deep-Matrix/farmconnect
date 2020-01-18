@@ -114,7 +114,12 @@ def login():
 #Tushar
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
-    pass
+    try:
+        conn = sqlite3.connect("datahouse.db")
+        cursorObj = conn.cursor()
+    except Exception as e:
+        data['error'] = str(e)
+    return jsonify(data)
 
 #tushar
 @app.route('/buy_produce',methods=['POST'])
@@ -314,7 +319,6 @@ def rent_warehouse():
         cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?);",entities)
         conn.commit()
         cursorObj.execute("SELECT * FROM WAREHOUSE WHERE WAREHOUSE_ID ==?;",(warehouse_id,))
-        conn.commit()
         row = cursorObj.fetchone()[0]
         id_x = row[0]
         new_data = row[2]-produce_quantity
