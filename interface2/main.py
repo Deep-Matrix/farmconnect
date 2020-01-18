@@ -5,6 +5,7 @@ import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from functools import wraps
+import os
 
 from interface import stream_produce, create_farmer
 
