@@ -144,22 +144,23 @@ def sell_produce():
     return jsonify({'message' : 'Produce Added!'})
 
 
-
+#tested - ok
 @app.route('/buy_produce',methods=['POST'])
 def buy_produce():
     try:
         data = request.get_json()
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        date_string = datetime.today()
-        time_string = now.strftime("%H:%M:%S")
-        entities = ((data['buyer_id',data['produce_id'],data['quantity'],date_string,time_string))
-        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?);",entities)
+        date_string = datetime.now().strftime("%m/%d/%Y")
+        time_string = datetime.now().strftime("%H:%M:%S")
+        entities = ((str(uuid.uuid4()),data['buyer_id'],data['produce_id'],data['quantity'],date_string,time_string))
+        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         conn.commit()
-        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID ==?;",(data['produce_id'],))
-        previous_quantity = cursorObj.fetchone()[3]  #previous quantity of produce
-        previous_times_bought = cursorObj.fetchone()[8] #previous no of times bought
-        bought_quantity = data['quantity']
+        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID == ?;",(data['produce_id'],))
+        tup = cursorObj.fetchone()  #previous quantity of produce
+        previous_quantity = tup[3]
+        previous_times_bought = tup[8]
+        bought_quantity = int(data['quantity'])
         final = previous_quantity - bought_quantity
         entities = ((final,data['produce_id']))
         cursorObj.execute("UPDATE FARMER_PRODUCE SET AVAILABLEQUANTITY = ? WHERE PRODUCEID == ?",entities)
@@ -168,32 +169,14 @@ def buy_produce():
         entities = ((updated_times_bought,data['produce_id']))
         cursorObj.execute("UPDATE FARMER_PRODUCE SET NO_TIMES_BOUGHT = ? WHERE PRODUCEID == ?",entities)
         conn.commit()
-        if(previous_quantity == bought_quantity)
+        if(previous_quantity == bought_quantity):
             value_boolean = True
             entities = ((value_boolean,data['produce_id']))
             cursorObj.execute("UPDATE FARMER_PRODUCE SET SOLD = ? WHERE PRODUCEID == ?",entities) 
         conn.commit()
-        # current_user = cursorObj.fetchone()
-        # cursorObj.execute("SELECT * FROM FARMER_PRODUCE;")
-        # vals = cursorObj.fetchall()
-        # li = []
-        # for val in vals:
-        #     li.append(val)
-
-        # data['produces_bought'] = li
-        # conn.commit()
-    #return jsonify(data)
     except Exception as e:
-        return jsonify({'message':str(e)})
-    return jsonify({"message":"Warehouse has been rented"})    
-
-        #if current_user == 'null':
-        #return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
-        #new_quantity = current_user
-    ###except Exception as e:
-    ###    print(e)
-    #return jsonify({'mess' : current_user},)
-    ###return jsonify(data)
+        return jsonify({"STATUS" : "FAIL","message":str(e)})
+    return jsonify({"STATUS" : "OK","message":"Bought successfully"})    
 
 #rugved
 @app.route('/list_produce',methods=['POST'])
@@ -218,36 +201,34 @@ def displayfarmer():
         return {"status":"Fail", "message":str(e)}
     return jsonify(data)
 
-
+#tested = ok
 @app.route('/put_review',methods=['POST'])
 def put_review():
     try:
-        data = request.get_json
+        data = request.get_json()
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        date_string = datetime.today()
-        time_string = now.strftime("%H:%M:%S")
-        entities((data['buyer_id'],data['produce_id'],data['rating'],date_string,time_string))
-        cursorObj.execute("INSERT INTO QUALITY_REVIEW(BUYERID,PRODUCEID,RATING,DATE,TIME) VALUES = (?,?,?,?,?);",entities)
+        date_string = datetime.now().strftime("%m/%d/%Y")
+        time_string = datetime.now().strftime("%H:%M:%S")
+        entities = ((str(uuid.uuid4()),data['buyer_id'],data['produce_id'],data['rating'],date_string,time_string))
+        cursorObj.execute("INSERT INTO QUALITY_REVIEW(ID,BUYERID,PRODUCEID,RATING,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         conn.commit()
-        cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID ==?;",(data['produce_id'],))
-        previous_rating = cursorObj.fetchone()[7]  #previous review
-        #latest_rating = data['rating']
         cursorObj.execute("SELECT * FROM QUALITY_REVIEW WHERE PRODUCEID ==?;",(data['produce_id'],))
         vals = cursorObj.fetchall()
-        data_new = {}
-        list_of_reviews =[]
+        # data_new = {} 
+        # list_of_reviews =[]
+        sum=0
+        count = 0
         for val in vals:
-            list_of_reviews.append(val)
-        data_new['reviews'] = list_of_reviews
-        # entities=((new,data['produce_id']))
-        # cursorObj.execute("UPDATE FARMER_PRODUCE SET AVAILABLE_SIZE = ? WHERE PRODUCEID == ?",entities)
-        #return jsonify({"message": new})
+            sum+=val[3]
+            count+=1
+        avg = sum/count
+        entities=((avg,data['produce_id']))
+        cursorObj.execute("UPDATE FARMER_PRODUCE SET QUALITY_REVIEW = ? WHERE PRODUCEID == ?",entities)
         conn.commit() 
     except Exception as e:
         return jsonify({'message':str(e)})
-    return jsonify(data_new)
-    #return jsonify({'message' : 'Review Added!'})
+    return jsonify({"VALS" : avg, 'message' : 'Review Added!'})
 
 
 #talha
@@ -306,19 +287,19 @@ def buyer_history():
 # def search():  #from list produce
 #     pass
 
-#rugved
+
 @app.route('/category_sort',methods=['POST'])
 def category_sort():
     pass
 
 
-#rugved
+
 @app.route('/price_sort',methods=['POST'])
 def price_sort():
     pass
 
 
-#rugved
+
 @app.route('/review_sort',methods=['POST'])
 def review_sort():
     pass
@@ -434,8 +415,8 @@ def rent_warehouse():
         farmer_id = data['farmer_id']
         produce_id = data['produce_id']
         produce_quantity = data['produce_quantity']
-        date_string = datetime.today()
-        time_string = now.strftime("%H:%M:%S")
+        date_string = datetime.now().strftime("%m/%d/%Y")
+        time_string = datetime.now().strftime("%H:%M:%S")
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date_string,time_string))
