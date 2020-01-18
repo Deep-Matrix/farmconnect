@@ -1,6 +1,6 @@
 from flask import render_template, redirect, jsonify, session
 from app import app
-from app.forms import LoginForm
+from app.forms import LoginForm, SignUpForm
 import requests
 import json
 
@@ -19,21 +19,25 @@ def isLoggedIn():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        r = requests.post('http://127.0.0.1:5000/login_buyer', auth = (username, password))
-        print("#########################################" + r.text)
-        if r.text == "Could not verify":
-            return redirect('/login')
-        else:
-            print(r.text)
-            data = json.loads(r.text)
-            session['token'] = data['token']
-            print(session['token'])
-        return redirect('/index')
-    return render_template('login.html', title='Sign In', form=form, error='Invalid Credentials')
+    if not isLoggedIn():
+        form = LoginForm()
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+            r = requests.post('http://127.0.0.1:5000/login_buyer', auth = (username, password))
+            print("#########################################" + r.text)
+            if r.text == "Could not verify":
+                return redirect('/login')
+            else:
+                print(r.text)
+                data = json.loads(r.text)
+                session['token'] = data['token']
+                print(session['token'])
+            return redirect('/index')
+        return render_template('login.html', title='Sign In', form=form, error='Invalid Credentials')
+    else:
+        return redirect('/')
+
 
 @app.route('/')
 @app.route('/index')
@@ -61,4 +65,33 @@ def produceinformation(id):
     except Exception as e:
         print(e)
     return render_template('produce.html', title=str(id)+" - Details", product=data, user=session)
+
+@app.route('/signup', methods = ['GET','POST'])
+def signup():
+    # if isLoggedIn:
+    #     return redirect('/')
+    form = SignUpForm()
+    if form.validate_on_submit():
+        password = form.password.data
+        address = form.address.data
+        phonenum = form.phonenum.data
+        fullname = form.address.data
+        aadhar = form.aadhar.data
+        url = "http://127.0.0.1:5000/registerbuyer"
+
+        payload = {}
+        payload['fullname'] = fullname
+        payload['password'] = password
+        payload['address'] = address
+        payload['aadhar'] = aadhar
+        payload['phone_no'] = phonenum
+        payload['imagelink'] = "some.url.com"
+        response = requests.post(url, json = payload).json()
+        if response['status'] == "OK":
+            return redirect('/login')
+        else:
+            return render_template('signup.html', form=form, title='Join US', error='Some Error Occurred')
+    return render_template('signup.html', form=form, title='Join US')
+
+
         
