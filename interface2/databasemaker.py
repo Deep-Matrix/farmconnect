@@ -42,6 +42,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS BUYER
               AADHAR CHAR(12) NOT NULL,
               IMAGELINK CHAR(100) NOT NULL,
               DATEJOINED CHAR(12) NOT NULL,
+              EMAIL CHAR(30) NOT NULL DEFAULT "not@mention.com",
               PHONENUMBER INT NOT NULL
             );'''
             )

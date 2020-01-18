@@ -127,8 +127,62 @@ def login_farmer():
 
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
+@app.route('/login_buyer')
+def login_buyer():
+    auth = request.authorization
+    data = request.get_json()
+    if not auth or not auth.username or not auth.password:
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
- 
+    #user = User.query.filter_by(name=auth.username).first()
+    conn = sqlite3.connect("datahouse.db")
+    cursorObj = conn.cursor()
+    entities = ((data['phone_no']),)
+    cursorObj.execute("SELECT * FROM BUYER WHERE PHONENUMBER ==?;",entities)
+    # data = jwt.decode(token, app.config['SECRET_KEY'])
+    current_user = cursorObj.fetchone()
+
+    if current_user == 'null':
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+    # data = jwt.decode(token, app.config['SECRET_KEY'])
+    userpassword = current_user[3]
+    xx={}
+    try:
+        if check_password_hash(userpassword, auth.password):
+            entities = ((data['phone_no']),)
+            cursorObj.execute("SELECT BUYERID FROM BUYER WHERE PHONENUMBER ==?;",entities)
+            # data = jwt.decode(token, app.config['SECRET_KEY'])
+            buyerid = cursorObj.fetchone() 
+            token = jwt.encode({'buyerid' : buyerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+
+            return jsonify({'token' : token.decode('UTF-8')})
+    except Exception as e:
+        xx['msg']='400'
+        return jsonify(xx)
+
+    return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+@app.route('/buyer_details',methods=['POST']) 
+def buyer_details():
+    try:
+        data = request.json()
+        conn = sqlite3.connect('datahouse.db')
+        cursorObj = conn.cursor()
+        token = data['token']
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
+        cursorObj.execute("SELET * FROM BUYER WHERE BUYERID ==?;",(value,))
+        user_data = cursorObj.fetchone()
+        new_dict={}
+        new_dict['user_data'] = user_data
+    except Exception as e:
+        new_dict={}
+        new_dict['status']="FAIL"
+        new_dict['error']=str(e) 
+    return jsonify(new_dict)
+
+
 #tested - ok
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
@@ -535,7 +589,7 @@ def search_warehouse():
         warehouse_list=[]
         for warehouse in warehouses:
             temp_list = []
-            temp_list.append(warehouse[0])
+            logintemp_list.append(warehouse[0])
             distance = calculate_distance(user_loc_lat , user_loc_lon,warehouse[1],warehouse[2])
             temp_list.append(distance)
             warehouse_list.append(temp_list)
@@ -546,7 +600,12 @@ def search_warehouse():
         optimal_data['status'] = "FAIL"
     return jsonify(optimal_data)
 
+@app.route('/user_details',methods=['POST'])
+def user_details:
+    try:
 
+    except Exception as e:
+        
 
 if __name__ == '__main__':
     app.run(debug=True)

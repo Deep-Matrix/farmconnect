@@ -15,3 +15,11 @@ def specific(conn, reqid):
     cursor = conn.execute(query)
     rows = cursor.fetchall()
     return rows
+
+def streambyreview(conn):
+    data = dict()
+    query = "SELECT * FROM FARMER_PRODUCE WHERE SOLD = 'False' ORDER BY QUALITY_REVIEW;"
+    # conn = sqlite3.connect(os.path.realpath('datahouse.db'))
+    cursor = conn.execute(query)
+    rows = cursor.fetchall()
+    return rows
