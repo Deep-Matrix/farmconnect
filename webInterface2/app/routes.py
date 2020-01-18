@@ -4,14 +4,30 @@ from app.forms import LoginForm, SignUpForm
 import requests
 import json
 
+def getSession():
+    data = {}
+    if isLoggedIn:
+        data['addres'] = session['address']
+        data['datejoined'] = session['datejoined']
+        data['fullname'] = session['fullname']
+        data['imagelink'] = session['imagelink']
+        data['phonenumber'] = session['phonenumber']
+        data['userid'] = session['userid']
+    return data
+
 def isLoggedIn():
     loggedIn = False
     try:
         data = session['token']
         headers = {'token': data}
         r = requests.post("http://127.0.0.1:5000/buyer_details",headers=headers).json()
-        print(r)
-        loggedIn = True    
+        session['address'] = r['address']
+        session['datejoined'] = r['datejoined']
+        session['fullname'] = r['fullname']
+        session['imagelink'] = r['imagelink']
+        session['phonenumber'] = r['phonenumber']
+        session['userid'] = r['userid']
+        loggedIn = True 
     except Exception as e:
         loggedIn = False
         print(str(e))
@@ -53,7 +69,7 @@ def index():
         for i in range(length):
             arrayt.append(data[str(i)])
         
-        return render_template('index.html', title='Home Page', produce=arrayt)
+        return render_template('index.html', title='Home Page', produce=arrayt, user=getSession())
     return redirect('/login')
 
 @app.route('/produce/<id>')
@@ -87,11 +103,15 @@ def signup():
         payload['phone_no'] = phonenum
         payload['imagelink'] = "some.url.com"
         response = requests.post(url, json = payload).json()
+
         if response['status'] == "OK":
             return redirect('/login')
         else:
             return render_template('signup.html', form=form, title='Join US', error='Some Error Occurred')
     return render_template('signup.html', form=form, title='Join US')
 
-
-        
+@app.route('/logout')
+def logout():
+    if isLoggedIn():
+        session.clear()
+    return redirect('/')
