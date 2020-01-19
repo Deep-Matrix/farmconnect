@@ -10,9 +10,6 @@ from math import sin, cos, sqrt, atan2
 import os
 from interface import stream_produce, create_farmer
 
-# if data==None:
-#     data=request.form
-
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
@@ -67,13 +64,10 @@ def token_required(f):
 # }
 
 #tested - ok
-#android - ok
 @app.route('/registerfarmer', methods=['GET', 'POST'])
 def create_user():
     try:
         data = request.get_json()
-        if data==None:
-            data=request.form.to_dict()
         data['password'] = generate_password_hash(data['password'], method='sha256')
         conn = connect()
         return jsonify(create_farmer.create(conn, data))
@@ -81,7 +75,6 @@ def create_user():
         print(e)
         return jsonify({"message":"post required", "status":"fail","error":str(e)})
 
-#android - ok
 @app.route('/registerbuyer', methods=['POST'])
 def registerbuyer():
     data={}
@@ -94,7 +87,7 @@ def registerbuyer():
         hashed_password = generate_password_hash(data['password'], method='sha256')
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date_string,data['phone_no']))
+        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],datetime.datetime.utcnow(),data['phone_no']))
         cursorObj.execute("INSERT INTO BUYER(BUYERID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
@@ -106,9 +99,6 @@ def registerbuyer():
 @app.route('/login_farmer',methods=['POST'])
 def login_farmer():
     auth = request.authorization
-    data = request.get_json()
-    if data==None:
-            data=request.form.to_dict()
     if not auth or not auth.username or not auth.password:
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
@@ -209,15 +199,11 @@ def buyer_details():
 
 
 #tested - ok
-#android - ok
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
     try:
         data = request.get_json()
-        if data==None:
-        	data=request.form
-        print(data)
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
         token = request.headers.get('token')
         dict_token = jwt.decode(token,app.config['SECRET_KEY'])
@@ -231,18 +217,12 @@ def sell_produce():
     return jsonify({'message' : 'Produce Added!'})
 
 
-#tested - ok
-#android - ok
+#tested - ok #website ok
 @app.route('/buy_produce',methods=['POST'])
 def buy_produce():
     try:
         data = request.get_json()
-        if data==None:
-            data=request.form.to_dict()
-        print(type(data['quantity']))
-        print(data['quantity'])
-
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
         token = request.headers.get('token')
         dict_token = jwt.decode(token,app.config['SECRET_KEY'])
@@ -274,7 +254,6 @@ def buy_produce():
     return jsonify({"STATUS" : "OK","message":"Bought successfully"})    
 
 #tested-ok
-#android - ok
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
     try:
@@ -294,7 +273,6 @@ def list_produce():
 
 
 #tested - ok
-#android - ok
 @app.route('/displayfarmers',methods=['POST'])
 def displayfarmer():
     try:
@@ -313,13 +291,10 @@ def displayfarmer():
     return jsonify(data)
 
 #tested = ok
-#android - ok
 @app.route('/put_review',methods=['POST'])
 def put_review():
     try:
         data = request.get_json()
-        if data==None:
-            data=request.form
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         date_string = datetime.datetime.now().strftime("%m/%d/%Y")
@@ -345,7 +320,7 @@ def put_review():
     return jsonify({"VALS" : avg, 'message' : 'Review Added!'})
 
 
-#tested - ok #NOT NEEDED
+#tested - ok
 @app.route('/list_review',methods=['POST'])
 def list_reviews():
     data={}
@@ -369,9 +344,6 @@ def farmer_history():
         conn = connect()
         cursorObj = conn.cursor()
         data = request.get_json()
-        if data==None:
-            data=request.form.to_dict()
-        print(data)
         cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCEID=(SELECT PRODUCEID FROM FARMER_PRODUCE WHERE FARMERUSERID ==?)",(data['farmer_id'],))
         vals = cursorObj.fetchall()
         li = []
@@ -397,20 +369,16 @@ def cost_updation():
 #tested-ok
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
-    data = {}
     try:
-        conn = connect()
+        data = request.get_json()
+        conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        token = request.headers.get('token')
-        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
-        value = dict_token['buyerid']
-        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID == ? ORDER BY DATE;",(value,))
+        # entities = (())
+        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID == ?;",(data['buyer_id'],))
         vals = cursorObj.fetchall()
-        li = {}
-        li1=[]
-        counter = 0
-        # for val in vals:
-        print(vals[1]['PASSWORD'])
+        li = []
+        for val in vals:
+            li.append(val)
         data['buyer_history'] = li
         data['status'] = "OK"
     except Exception as e:
@@ -427,7 +395,7 @@ def buyer_history():
 def category_sort():
     try:
         data = request.get_json
-        conn = connect()
+        conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         entities = ((data['category']))
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE TYPE ==? AND SOLD == False;",entities)
@@ -446,7 +414,7 @@ def category_sort():
 def price_sort():
     try:
         data = {}
-        conn = connect()
+        conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;")
         vals = cursorObj.fetchall()
@@ -466,7 +434,7 @@ def price_sort():
 def review_sort():
     try:
         data = {}
-        conn = connect()
+        conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;")
         vals = cursorObj.fetchall()
@@ -539,7 +507,7 @@ def register_owner():
     try:
         data = request.get_json()
         hashed_password = generate_password_hash(data['password'], method='sha256')
-        conn = connect()
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
         cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
@@ -554,7 +522,7 @@ def register_owner():
 def add_warehouse():
     try:
         data = request.get_json()
-        conn = connect()
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         u_id = str(uuid.uuid4())
         entities = ((u_id,data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
@@ -573,7 +541,7 @@ def add_warehouse():
 def list_warehouse():
     try:
         data = {}
-        conn = connect()
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM WAREHOUSE;")
         vals = cursorObj.fetchall()
@@ -634,7 +602,7 @@ def search_warehouse():
     try:
         data = request.get_json()
         user_loc_lat , user_loc_lon = data['latitude'],data['longitude']   
-        conn = connect()
+        conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM WAREHOUSE_ADDRESS;")
         warehouses = cursorObj.fetchall()
