@@ -217,9 +217,12 @@ def buy_produce():
         data = request.get_json()
         conn = connect()
         cursorObj = conn.cursor()
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
         date_string = datetime.datetime.now().strftime("%m/%d/%Y")
         time_string = datetime.datetime.now().strftime("%H:%M:%S")
-        entities = ((str(uuid.uuid4()),data['buyer_id'],data['produce_id'],data['quantity'],date_string,time_string))
+        entities = ((str(uuid.uuid4()),value,data['produce_id'],data['quantity'],date_string,time_string))
         cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID == ?;",(data['produce_id'],))
         tup = cursorObj.fetchone()  #previous quantity of produce
