@@ -62,11 +62,8 @@
             
               {% if user %}
                 <h1 class="display-4">Welcome, {{ user.fullname }}</h1>
-                <p class="lead">Here you will see produces by various farmers across the area which are for sell. They are being directly sold by Farmer.</p>
-                {% else %}
-                <h1 class="display-4">Welcome, User</h1>
-                <p class="lead">Here you will see produces by various farmers across the area which are for sell. They are being directly sold by Farmer. You need to signin to buy.</p>
-              {% endif %}
+                <p class="lead">Here you will see all your previous purchases.</p>
+            {% endif %}
             </div>
           </div>
           
@@ -76,9 +73,8 @@
             
             <div class="col-8">
                 
-                {% if produce %}
-                {% for product in produce %}
-                <a href="/produce/{{ product.produceid }}" style="text-decoration: none;">
+                {% if history %}
+                {% for event in history %}
                 <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">{{ product.producename }}</h5>
@@ -88,7 +84,7 @@
                     
                     
                 </div>
-                </div></a><br>
+                </div><br>
                 {% endfor %}
                 {% else %}
                 <div class="card">

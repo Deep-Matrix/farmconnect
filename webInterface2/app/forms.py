@@ -15,3 +15,7 @@ class SignUpForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     aadhar = IntegerField('Aadhar Details', validators=[DataRequired()])
     submit = SubmitField('Sign Up')
+
+class BuyProduceForm(FlaskForm):
+    qty = IntegerField('Quantity', validators=[DataRequired()])
+    submit = SubmitField('Buy Now')

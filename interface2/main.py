@@ -226,7 +226,6 @@ def buy_produce():
         date_string = datetime.datetime.now().strftime("%m/%d/%Y")
         time_string = datetime.datetime.now().strftime("%H:%M:%S")
         entities = ((str(uuid.uuid4()),value,data['produce_id'],data['quantity'],date_string,time_string))
-        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID == ?;",(data['produce_id'],))
         tup = cursorObj.fetchone()  #previous quantity of produce
         previous_quantity = tup[3]
@@ -244,6 +243,7 @@ def buy_produce():
             value_boolean = True
             entities = ((value_boolean,data['produce_id']))
             cursorObj.execute("UPDATE FARMER_PRODUCE SET SOLD = ? WHERE PRODUCEID == ?",entities) 
+        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
         return jsonify({"STATUS" : "FAIL","message":str(e)})

@@ -1,6 +1,6 @@
 from flask import render_template, redirect, jsonify, session
 from app import app
-from app.forms import LoginForm, SignUpForm
+from app.forms import *
 import requests
 import json
 
@@ -72,15 +72,25 @@ def index():
         return render_template('index.html', title='Home Page', produce=arrayt, user=getSession())
     return redirect('/login')
 
-@app.route('/produce/<id>')
+@app.route('/produce/<id>', methods = ['GET', 'POST'])
 def produceinformation(id):
-    data = {}
-    user = {}
-    try:
-        data = requests.get("http://127.0.0.1:5000/getproduce?id="+str(id)).json()
-    except Exception as e:
-        print(e)
-    return render_template('produce.html', title=str(id)+" - Details", product=data, user=session)
+    if isLoggedIn():
+        form = BuyProduceForm()
+        try:
+            data = requests.get("http://127.0.0.1:5000/getproduce?id="+str(id)).json()
+        except Exception as e:
+            print(e)
+        qty = 0
+        if form.validate_on_submit():
+            qty = form.qty.data
+            r = requests.post('http://127.0.0.1:5000/buy_produce', json={"produce_id":id, "quantity":qty}, headers={'token':session['token']}).json()
+            print(r)
+            if r['STATUS'] == "OK":
+                return redirect('/payment')
+            else:
+                print("###############################" + r['message'])
+        return render_template('produce.html', title=str(id)+" - Details", product=data, form=form)
+    return redirect('/login')
 
 @app.route('/signup', methods = ['GET','POST'])
 def signup():
@@ -114,4 +124,10 @@ def signup():
 def logout():
     if isLoggedIn():
         session.clear()
+    return redirect('/')
+
+@app.route('/payment')
+def payment():
+    if isLoggedIn():
+        return render_template('payment.html')
     return redirect('/')
