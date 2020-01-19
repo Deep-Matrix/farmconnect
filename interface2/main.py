@@ -91,7 +91,7 @@ def registerbuyer():
         return jsonify({"alert" : str(e), 'status':'FAIL'})
     return jsonify({'message' : 'New Buyer created!', 'status':'OK'})
 
-
+#Tested ok. Website Done!!
 @app.route('/login_farmer',methods=['POST'])
 def login_farmer():
     auth = request.authorization
@@ -100,7 +100,7 @@ def login_farmer():
 
 
     #user = User.query.filter_by(name=auth.username).first()
-    conn = sqlite3.connect("datahouse.db")
+    conn = connect()
     cursorObj = conn.cursor()
     entities = ((auth.username),)
     cursorObj.execute("SELECT * FROM FARMER WHERE PHONENUMBER ==?;",entities)
@@ -120,7 +120,7 @@ def login_farmer():
             entities = ((auth.username),)
             cursorObj.execute("SELECT FARMERID FROM FARMER WHERE PHONENUMBER ==?;",entities)
             # data = jwt.decode(token, app.config['SECRET_KEY'])
-            farmerid = cursorObj.fetchone() 
+            farmerid = cursorObj.fetchone()[0]
             token = jwt.encode({'farmerid' : farmerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
 
             return jsonify({'token' : token.decode('UTF-8')})
@@ -199,18 +199,21 @@ def buyer_details():
 def sell_produce():
     try:
         data = request.get_json()
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['farmeruserid'],data['quantity'],data['availablequantity'],data['cost'],data['sold'],data['description'],data['quality_review'],data['no_times_bought']))
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['farmerid']
+        entities = ((str(uuid.uuid4()),value,data['quantity'],data['availablequantity'],data['cost'],data['sold'],data['description'],data['quality_review'],data['no_times_bought']))
         cursorObj.execute("INSERT INTO FARMER_PRODUCE(PRODUCEID,FARMERUSERID,QUANTITY,AVAILABLEQUANTITY,COST,SOLD,DESCRIPTION,QUALITY_REVIEW,NO_TIMES_BOUGHT) VALUES (?,?,?,?,?,?,?,?,?);",entities)
         conn.commit()
         #return jsonify({'message' : 'Produce Added!'})
     except Exception as e:
-        return jsonify({"alert" : "error!"})
+        return jsonify({"alert" : str(e)})
     return jsonify({'message' : 'Produce Added!'})
 
 
-#tested - ok
+#tested - ok #website ok
 @app.route('/buy_produce',methods=['POST'])
 def buy_produce():
     try:
