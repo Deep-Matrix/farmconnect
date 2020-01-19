@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 import os
 import sqlite3
+import uuid
+
 app = Flask(__name__)
 
 def getFarmerFromPhone(conn, phno):
@@ -35,24 +37,24 @@ def postdetails(phno, details):
             sold = "False"
             QualityReviewRating = "2.5"
             TimesBought = "0"
-            entities = (farmerid, quantityInQuintals, availableQty, sold, description, QualityReviewRating, TimesBought, cost, producename)
+            entities = (str(uuid.uuid4()), farmerid, quantityInQuintals, availableQty, sold, description, QualityReviewRating, TimesBought, cost, producename)
             cursor_obj = conn.cursor()
-            cursor_obj.execute("INSERT INTO FARMER_PRODUCE(FARMERUSERID, QUANTITY, AVAILABLEQUANTITY, SOLD, DESCRIPTION, QUALITY_REVIEW, NO_TIMES_BOUGHT, COST, PRODUCENAME) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", entities)
+            cursor_obj.execute("INSERT INTO FARMER_PRODUCE(PRODUCEID, FARMERUSERID, QUANTITY, AVAILABLEQUANTITY, SOLD, DESCRIPTION, QUALITY_REVIEW, NO_TIMES_BOUGHT, COST, PRODUCENAME) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", entities)
             conn.commit()
         else:
             return
-    except:
-        return
+    except Exception as e:
+        print(e)
 
-@app.route('/post')
+@app.route('/post', methods = ["POST", "GET"])
 def post():
-    phno = request.args.get("phno")
-    details = request.args.get("msg")
+    phno = request.form("phno")
+    details = request.form("msg")
     print("From: {} \n\n Message: {}".format(phno, details))
     postdetails(phno, details)
     return (jsonify({"status": "ok"}))
 
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = True, port = 5005)
 # postdetails(2121, "wqwqwq")

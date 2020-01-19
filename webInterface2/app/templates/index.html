@@ -44,15 +44,19 @@
 ">
     <div class="container">
         <div class="float-left">
-            <h3>FarmConnect</h3>
+            <h1>FarmConnect</h1><hr><br>
+            <a href=" {{ url_for('index') }}" class="btn btn-outline-danger">Previous Transactions</a>
+            <a href=" {{ url_for('logout') }}" class="btn btn-outline-dark">Logout</a>
         </div>
         <div class="float-right">
-            <img src=" {{ url_for('static', filename='images/img-02.png')}}" height="50px" width="50px" class="rounded"><br>
+            <img src=" {{ url_for('static', filename='images/img-02.jpg')}}" height="50px" width="50px" class="rounded-circle">
             
         </div>
-    </div>
-    <div class="container-fluid">
         
+    </div> 
+    
+    <div class="container-fluid">
+        <hr>
         <div class="jumbotron jumbotron-fluid">
             <div class="container">
             
@@ -74,16 +78,17 @@
                 
                 {% if produce %}
                 {% for product in produce %}
+                <a href="/produce/{{ product.produceid }}" style="text-decoration: none;">
                 <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">{{ product.producename }}</h5>
                     <p class="card-text">{{ product.description }} <br>
                         Rating: {{ product.qualityreview }}
                     </p>
-                    <a href="/produce/{{ product.produceid }}" class="btn btn-primary">Know More</a>
-                    <a href="#" class="btn btn-primary">Add to Cart</a>
+                    
+                    
                 </div>
-                </div><br>
+                </div></a><br>
                 {% endfor %}
                 {% else %}
                 <div class="card">

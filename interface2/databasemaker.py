@@ -29,6 +29,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS FARMER_PRODUCE
               DESCRIPTION CHAR(140) NOT NULL,
               QUALITY_REVIEW INT,
               NO_TIMES_BOUGHT INT NOT NULL,
+              PRODUCENAME TEXT DEFAULT "NoName",
               FOREIGN KEY (FARMERUSERID) REFERENCES FARMER (FARMERID)
               );'''
             ) # Checked. OK
@@ -42,6 +43,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS BUYER
               AADHAR CHAR(12) NOT NULL,
               IMAGELINK CHAR(100) NOT NULL,
               DATEJOINED CHAR(12) NOT NULL,
+              EMAIL CHAR(30) NOT NULL DEFAULT "not@mention.com",
               PHONENUMBER INT NOT NULL
             );'''
             )

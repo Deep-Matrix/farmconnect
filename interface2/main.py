@@ -17,7 +17,6 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/Users/antho/Documents/api_example/todo.db'
-
 # db = SQLAlchemy(app)
 
 def connect():
@@ -80,11 +79,12 @@ def create_user():
         return jsonify(create_farmer.create(conn, data))
     except Exception as e:
         print(e)
-        return jsonify({"message":"post required", "status":"fail"})
+        return jsonify({"message":"post required", "status":"fail","error":str(e)})
 
 #android - ok
 @app.route('/registerbuyer', methods=['POST'])
 def registerbuyer():
+    data={}
     try:
         data = request.get_json()
         if data==None:
@@ -94,18 +94,17 @@ def registerbuyer():
         hashed_password = generate_password_hash(data['password'], method='sha256')
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date_string,data['phone_no']))
+        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],datetime.datetime.utcnow(),data['phone_no']))
         cursorObj.execute("INSERT INTO BUYER(BUYERID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
-        #data['error'] = str(e)
-        return jsonify({"alert" : str(e)})
-    return jsonify({'message' : 'New Buyer created!'})
+        data['error'] = str(e)
+        return jsonify({"alert" : str(e), 'status':'FAIL'})
+    return jsonify({'message' : 'New Buyer created!', 'status':'OK'})
 
-
-@app.route('/login_farmer',methods=['POST','GET'])#change made here
+#Tested ok. Website Done!!
+@app.route('/login_farmer',methods=['POST'])
 def login_farmer():
-
     auth = request.authorization
     data = request.get_json()
     if data==None:
@@ -113,13 +112,16 @@ def login_farmer():
     if not auth or not auth.username or not auth.password:
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
+
     #user = User.query.filter_by(name=auth.username).first()
-    conn = sqlite3.connect("datahouse.db")
+    conn = connect()
     cursorObj = conn.cursor()
     entities = ((auth.username),)
     cursorObj.execute("SELECT * FROM FARMER WHERE PHONENUMBER ==?;",entities)
     # data = jwt.decode(token, app.config['SECRET_KEY'])
     current_user = cursorObj.fetchone()
+    if not current_user:
+        return jsonify({"status":"FAIL"})
 
     if current_user == 'null':
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
@@ -132,7 +134,7 @@ def login_farmer():
             entities = ((auth.username),)
             cursorObj.execute("SELECT FARMERID FROM FARMER WHERE PHONENUMBER ==?;",entities)
             # data = jwt.decode(token, app.config['SECRET_KEY'])
-            farmerid = cursorObj.fetchone() 
+            farmerid = cursorObj.fetchone()[0]
             token = jwt.encode({'farmerid' : farmerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
 
             return jsonify({'token' : token.decode('UTF-8')})
@@ -143,8 +145,69 @@ def login_farmer():
 
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
+@app.route('/login_buyer',methods=['POST'])
+def login_buyer():
+    auth = request.authorization
+    if not auth or not auth.username or not auth.password:
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
- 
+    #user = User.query.filter_by(name=auth.username).first()
+    conn = connect()
+    cursorObj = conn.cursor()
+    entities = (auth.username,)
+    cursorObj.execute("SELECT * FROM BUYER WHERE PHONENUMBER ==?;",entities)
+    # data = jwt.decode(token, app.config['SECRET_KEY'])
+    current_user = cursorObj.fetchone()
+    if not current_user:
+        return jsonify({"status":"FAIL"})
+
+    if current_user == 'null':
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+    # data = jwt.decode(token, app.config['SECRET_KEY'])
+    userpassword = current_user[2]
+    xx={}
+    try:
+        if check_password_hash(userpassword, auth.password):
+            entities = (auth.username,)
+            cursorObj.execute("SELECT BUYERID FROM BUYER WHERE PHONENUMBER ==?;",entities)
+            # data = jwt.decode(token, app.config['SECRET_KEY'])
+            buyerid = cursorObj.fetchone()[0] 
+            token = jwt.encode({'buyerid' : buyerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+
+            return jsonify({'token' : token.decode('UTF-8')})
+    except Exception as e:
+        xx['msg']='400'
+        xx['error'] = str(e)
+        return jsonify(xx)
+
+    return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+@app.route('/buyer_details',methods=['POST']) 
+def buyer_details():
+    try:
+        conn = connect()
+        cursorObj = conn.cursor()
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
+        cursorObj.execute("SELECT * FROM BUYER WHERE BUYERID ==?;",(value,))
+        user_data = cursorObj.fetchone()
+        new_dict={}
+        new_dict['userid'] = user_data['BUYERID']
+        new_dict['fullname'] = user_data['FULLNAME']
+        new_dict['address'] = user_data['ADDRESS']
+        new_dict['imagelink'] = user_data['IMAGELINK']
+        new_dict['datejoined'] = user_data['DATEJOINED']
+        new_dict['phonenumber'] = user_data['PHONENUMBER']
+        new_dict['status'] = 'OK'
+    except Exception as e:
+        new_dict={}
+        new_dict['status']="FAIL"
+        new_dict['error']=str(e) 
+    return jsonify(new_dict)
+
+
 #tested - ok
 #android - ok
 @app.route('/sell_produce',methods=['POST'])
@@ -156,12 +219,15 @@ def sell_produce():
         print(data)
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['farmeruserid'],data['quantity'],data['availablequantity'],data['cost'],data['sold'],data['description'],data['quality_review'],data['no_times_bought']))
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['farmerid']
+        entities = ((str(uuid.uuid4()),value,data['quantity'],data['availablequantity'],data['cost'],data['sold'],data['description'],data['quality_review'],data['no_times_bought']))
         cursorObj.execute("INSERT INTO FARMER_PRODUCE(PRODUCEID,FARMERUSERID,QUANTITY,AVAILABLEQUANTITY,COST,SOLD,DESCRIPTION,QUALITY_REVIEW,NO_TIMES_BOUGHT) VALUES (?,?,?,?,?,?,?,?,?);",entities)
         conn.commit()
         #return jsonify({'message' : 'Produce Added!'})
     except Exception as e:
-        return jsonify({"alert" : "error!"})
+        return jsonify({"alert" : str(e)})
     return jsonify({'message' : 'Produce Added!'})
 
 
@@ -178,28 +244,30 @@ def buy_produce():
 
         conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
-        date_string = datetime.now().strftime("%m/%d/%Y")
-        time_string = datetime.now().strftime("%H:%M:%S")
-        entities = ((str(uuid.uuid4()),data['buyer_id'],data['produce_id'],data['quantity'],date_string,time_string))
-        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
-        conn.commit()
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
+        date_string = datetime.datetime.now().strftime("%m/%d/%Y")
+        time_string = datetime.datetime.now().strftime("%H:%M:%S")
+        entities = ((str(uuid.uuid4()),value,data['produce_id'],data['quantity'],date_string,time_string))
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID == ?;",(data['produce_id'],))
         tup = cursorObj.fetchone()  #previous quantity of produce
         previous_quantity = tup[3]
         previous_times_bought = tup[8]
         bought_quantity = int(data['quantity'])
         final = previous_quantity - bought_quantity
+        if final < 0:
+            return jsonify({"STATUS" : "FAIL","message":"Not Enough Quantity"})
         entities = ((final,data['produce_id']))
         cursorObj.execute("UPDATE FARMER_PRODUCE SET AVAILABLEQUANTITY = ? WHERE PRODUCEID == ?",entities)
-        conn.commit()
         updated_times_bought = 1 + previous_times_bought
         entities = ((updated_times_bought,data['produce_id']))
         cursorObj.execute("UPDATE FARMER_PRODUCE SET NO_TIMES_BOUGHT = ? WHERE PRODUCEID == ?",entities)
-        conn.commit()
-        if(previous_quantity == bought_quantity):
+        if final == 0:
             value_boolean = True
             entities = ((value_boolean,data['produce_id']))
             cursorObj.execute("UPDATE FARMER_PRODUCE SET SOLD = ? WHERE PRODUCEID == ?",entities) 
+        cursorObj.execute("INSERT INTO BUSINESS_HISTORY(ID,BUYERID,PRODUCEID,QUANTITY,DATE,TIME) VALUES (?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
         return jsonify({"STATUS" : "FAIL","message":str(e)})
@@ -569,7 +637,7 @@ def search_warehouse():
         warehouse_list=[]
         for warehouse in warehouses:
             temp_list = []
-            temp_list.append(warehouse[0])
+            logintemp_list.append(warehouse[0])
             distance = calculate_distance(user_loc_lat , user_loc_lon,warehouse[1],warehouse[2])
             temp_list.append(distance)
             warehouse_list.append(temp_list)
@@ -580,6 +648,31 @@ def search_warehouse():
         optimal_data['status'] = "FAIL"
     return jsonify(optimal_data)
 
+
+@app.route('/farmer_details',methods=['POST']) 
+def farmer_details():
+    try:
+        conn = connect()
+        cursorObj = conn.cursor()
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
+        cursorObj.execute("SELECT * FROM FARMER WHERE FARMERID ==?;",(value,))
+        user_data = cursorObj.fetchone()
+        new_dict={}
+        new_dict['userid'] = user_data['FARMERID']
+        new_dict['fullname'] = user_data['FULLNAME']
+        new_dict['address'] = user_data['ADDRESS']
+        new_dict['imagelink'] = user_data['IMAGELINK']
+        new_dict['imagelink'] = user_data['AADHAR']
+        new_dict['datejoined'] = user_data['DATEJOINED']
+        new_dict['phonenumber'] = user_data['PHONENUMBER']
+        new_dict['status'] = 'OK'
+    except Exception as e:
+        new_dict={}
+        new_dict['status']="FAIL"
+        new_dict['error']=str(e) 
+    return jsonify(new_dict)
 
 
 if __name__ == '__main__':

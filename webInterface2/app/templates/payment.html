@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+	<!-- {{ url_for('static', filename='mainpage.css')}} -->
+	<head>
+		<title>{{ title }}</title>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!--===============================================================================================-->	
+			<!-- <link rel="icon" type="image/png" href="images/icons/favicon.ico"/> -->
+			<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icons/favicon.ico')}}"/>
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css')}}">
+		<!--===============================================================================================-->	
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css')}}">
+		<!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="css/util.css">
+			<link rel="stylesheet" type="text/css" href="css/main.css"> -->
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css')}}">
+			<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css')}}">
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" integrity="sha256-/sdxenK1NDowSNuphgwjv8wSosSNZB0t5koXqd7XqOI=" crossorigin="anonymous" />    
+            <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+			<!--===============================================================================================-->
+		</head>
+<body>
+	
+	<!-- <div class="limiter"> -->
+		<div class="container-login100">
+			<div class="wrap-login100" style="
+    padding-top: 2%;
+">
+				<div class="container">
+                    <h1>This is Payment Gateway Page</h1>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-dark"><i class="fa fa-home" aria-hidden="true"></i></a>
+                </div>   
+			</div>
+		<!-- </div> -->
+	</div>
+	
+	
+
+	
+<!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/tilt/tilt.jquery.min.js"></script>
+	<script >
+		$('.js-tilt').tilt({
+			scale: 1.1
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+</html>

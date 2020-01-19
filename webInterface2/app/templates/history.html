@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> {{ title }}</title>
+    <!--===============================================================================================-->	
+			<!-- <link rel="icon" type="image/png" href="images/icons/favicon.ico"/> -->
+			<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icons/favicon.ico')}}"/>
+            <!--===============================================================================================-->
+			<!-- <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css"> -->
+			<link rel="stylesheet" type="text/css" href="url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
+            <!--===============================================================================================-->
+                <!-- <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css"> -->
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css')}}">
+            <!--===============================================================================================-->
+                <!-- <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css"> -->
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css')}}">
+            <!--===============================================================================================-->	
+                <!-- <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css"> -->
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
+            <!--===============================================================================================-->
+                <!-- <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css"> -->
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css')}}">
+            <!--===============================================================================================-->
+                <!-- <link rel="stylesheet" type="text/css" href="css/util.css">
+                <link rel="stylesheet" type="text/css" href="css/main.css"> -->
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css')}}">
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css')}}">
+                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" integrity="sha256-/sdxenK1NDowSNuphgwjv8wSosSNZB0t5koXqd7XqOI=" crossorigin="anonymous" />    
+            <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+            <!--===============================================================================================-->
+            <!--===============================================================================================-->
+</head>
+<body>
+    <div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100" style="
+    padding-top: 5%;
+    padding-left: 2%;
+    padding-right: 2%;
+">
+    <div class="container">
+        <div class="float-left">
+            <h1>FarmConnect</h1><hr><br>
+            <a href=" {{ url_for('index') }}" class="btn btn-outline-danger">Previous Transactions</a>
+            <a href=" {{ url_for('logout') }}" class="btn btn-outline-dark">Logout</a>
+        </div>
+        <div class="float-right">
+            <img src=" {{ url_for('static', filename='images/img-02.jpg')}}" height="50px" width="50px" class="rounded-circle">
+            
+        </div>
+        
+    </div> 
+    
+    <div class="container-fluid">
+        <hr>
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+            
+              {% if user %}
+                <h1 class="display-4">Welcome, {{ user.fullname }}</h1>
+                <p class="lead">Here you will see all your previous purchases.</p>
+            {% endif %}
+            </div>
+          </div>
+          
+        <div class="row">
+
+            
+            
+            <div class="col-8">
+                
+                {% if history %}
+                {% for event in history %}
+                <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.producename }}</h5>
+                    <p class="card-text">{{ product.description }} <br>
+                        Rating: {{ product.qualityreview }}
+                    </p>
+                    
+                    
+                </div>
+                </div><br>
+                {% endfor %}
+                {% else %}
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-text">Some Error occured</p>
+                    </div>
+                </div><br>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+</body>
+</html>
