@@ -104,28 +104,28 @@ def signup():
     return render_template('signup.html', form=form, title='Join US')
 
     @app.route('/add_produce', methods = ['GET','POST'])
-def add_produce():
+    def add_produce():
     # if isLoggedIn:
     #     return redirect('/')
     form = AddProduceForm()
     if form.validate_on_submit():
-        password = form.password.data
-        address = form.address.data
-        phonenum = form.phonenum.data
-        fullname = form.address.data
-        aadhar = form.aadhar.data
-        url = "http://127.0.0.1:5000/registerfarmer"
+        producename = form.producename.data
+        quantity = form.quantity.data
+        cost = form.cost.data
+        sold = form.sold.data
+        description = form.description.data
+        url = "http://127.0.0.1:5000/sell_produce"
         payload = {}
-        payload['fullname'] = fullname
-        payload['password'] = password
-        payload['address'] = address
-        payload['aadhar'] = aadhar
-        payload['phone_no'] = phonenum
-        payload['imagelink'] = "some.url.com"
-        response = requests.post(url, json = payload).json()
-        print(response['error'])
-        if response['status'] == "OK":
-            return redirect('/login')
-        else:
-            return render_template('signup.html', form=form, title='Join US', error=response['error'])
-    return render_template('signup.html', form=form, title='Join US')
+    #     payload['fullname'] = fullname
+    #     payload['password'] = password
+    #     payload['address'] = address
+    #     payload['aadhar'] = aadhar
+    #     payload['phone_no'] = phonenum
+    #     payload['imagelink'] = "some.url.com"
+    #     response = requests.post(url, json = payload).json()
+    #     print(response['error'])
+    #     if response['status'] == "OK":
+    #         return redirect('/login')
+    #     else:
+    #         return render_template('signup.html', form=form, title='Join US', error=response['error'])
+    # return render_template('signup.html', form=form, title='Join US')
