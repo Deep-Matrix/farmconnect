@@ -113,7 +113,7 @@ def signup():
         payload['phone_no'] = phonenum
         payload['imagelink'] = "some.url.com"
         response = requests.post(url, json = payload).json()
-
+    
         if response['status'] == "OK":
             return redirect('/login')
         else:

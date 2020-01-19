@@ -46,7 +46,7 @@ def streamproducebyreview(conn):
         tempdata = dict()
         tempdata['produceid'] = data['PRODUCEID']
         tempdata['farmername'] = farmer.getNameFromId(conn, data['FARMERUSERID'])
-        tempdata['producename'] = data['producename']
+        tempdata['producename'] = data['PRODUCENAME']
         tempdata['availableqty'] = data['AVAILABLEQUANTITY']
         tempdata['cost'] = data['cost']
         tempdata['description'] = data['DESCRIPTION']

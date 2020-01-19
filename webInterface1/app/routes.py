@@ -32,7 +32,7 @@ def login():
             data = json.loads(r.text)
             session['token'] = data['token']
             print(session['token'])
-        return redirect('/farmer_history')
+            return redirect('/farmer_history')
     return render_template('login.html', title='Sign In', form=form, error='Invalid Credentials')
 
 # @app.route('/')
@@ -59,9 +59,11 @@ def index():
             data = requests.post('http://127.0.0.1:5000/farmer_history').json()
         except Exception as e:
             print(e)
+        print(data)
         arrayt = []
         for i in data:
             arrayt.append(data[i])
+        print(arrayt)
         return render_template('index.html', title='Home Page', transactions=arrayt)
     return redirect('/login')
 
