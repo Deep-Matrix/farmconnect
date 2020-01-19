@@ -24,3 +24,7 @@ class AddProduceForm(FlaskForm):
     sold = BooleanField('sold', validators=[DataRequired()])
     description = StringField('description', validators=[DataRequired()])
     submit = SubmitField('Add Produce')
+
+class CostUpdateForm(FlaskForm):
+    cost = IntegerField('cost', validators=[DataRequired()])
+    submit = SubmitField('Update Cost')
