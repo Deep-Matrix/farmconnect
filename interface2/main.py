@@ -365,16 +365,20 @@ def cost_updation():
 #tested-ok
 @app.route('/buyer_history',methods=['POST'])
 def buyer_history():
+    data = {}
     try:
-        data = request.get_json()
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
-        # entities = (())
-        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID == ?;",(data['buyer_id'],))
+        token = request.headers.get('token')
+        dict_token = jwt.decode(token,app.config['SECRET_KEY'])
+        value = dict_token['buyerid']
+        cursorObj.execute("SELECT * FROM BUSINESS_HISTORY WHERE BUYERID == ? ORDER BY DATE;",(value,))
         vals = cursorObj.fetchall()
-        li = []
-        for val in vals:
-            li.append(val)
+        li = {}
+        li1=[]
+        counter = 0
+        # for val in vals:
+        print(vals[1]['PASSWORD'])
         data['buyer_history'] = li
         data['status'] = "OK"
     except Exception as e:
