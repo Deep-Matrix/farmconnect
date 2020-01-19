@@ -22,6 +22,5 @@ class AddProduceForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired()])
     cost = IntegerField('cost', validators=[DataRequired()])
     sold = BooleanField('sold', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    aadhar = IntegerField('Aadhar Details', validators=[DataRequired()])
-    submit = SubmitField('Sign Up')
+    description = StringField('description', validators=[DataRequired()])
+    submit = SubmitField('Add Produce')
