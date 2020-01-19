@@ -1,6 +1,6 @@
 from flask import render_template, redirect, jsonify, session
 from app import app
-from app.forms import LoginForm, SignUpForm, AddProduceForm
+from app.forms import LoginForm, SignUpForm, AddProduceForm, CostUpdateForm
 import requests
 import json
 
@@ -103,8 +103,8 @@ def signup():
             return render_template('signup.html', form=form, title='Join US', error=response['error'])
     return render_template('signup.html', form=form, title='Join US')
 
-    @app.route('/add_produce', methods = ['GET','POST'])
-    def add_produce():
+@app.route('/add_produce', methods = ['GET','POST'])
+def add_produce():
     # if isLoggedIn:
     #     return redirect('/')
     form = AddProduceForm()
@@ -116,16 +116,35 @@ def signup():
         description = form.description.data
         url = "http://127.0.0.1:5000/sell_produce"
         payload = {}
-    #     payload['fullname'] = fullname
-    #     payload['password'] = password
-    #     payload['address'] = address
-    #     payload['aadhar'] = aadhar
-    #     payload['phone_no'] = phonenum
-    #     payload['imagelink'] = "some.url.com"
-    #     response = requests.post(url, json = payload).json()
-    #     print(response['error'])
-    #     if response['status'] == "OK":
-    #         return redirect('/login')
-    #     else:
-    #         return render_template('signup.html', form=form, title='Join US', error=response['error'])
-    # return render_template('signup.html', form=form, title='Join US')
+        payload['producename'] = producename
+        payload['quantity'] = quantity
+        payload['cost'] = cost
+        payload['sold'] = False
+        payload['quality_review'] = 3
+        payload['no_times_bought'] = 0
+        payload['description'] = description
+        response = requests.post(url, json = payload).json()
+        print(response['error'])
+        if response['status'] == "OK":
+            return redirect('/index')
+        else:
+            return render_template('addproduce.html', form=form, title='Join US', error=response['error'])
+    return render_template('addproduce.html', form=form, title='Join US')
+
+@app.route('/cost_update', methods = ['GET','POST'])
+def cost_update():
+    # if isLoggedIn:
+    #     return redirect('/')
+    form = CostUpdateForm()
+    if form.validate_on_submit():
+        cost = form.cost.data
+        url = "http://127.0.0.1:5000/cost_updation"
+        payload = {}
+        payload['cost'] = cost
+        response = requests.post(url, json = payload).json()
+        print(response['error'])
+        if response['status'] == "OK":
+            return redirect('/index')
+        else:
+            return render_template('cost_update.html', form=form, title='Join US', error=response['error'])
+    return render_template('cost_update.html', form=form, title='Join US')

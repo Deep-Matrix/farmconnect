@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, make_response
-import datetime
+from datetime import datetime
 import sqlite3
 import os
 import uuid
@@ -9,6 +9,9 @@ from functools import wraps
 from math import sin, cos, sqrt, atan2
 import os
 from interface import stream_produce, create_farmer
+
+# if data==None:
+#     data=request.form
 
 app = Flask(__name__)
 
@@ -64,10 +67,13 @@ def token_required(f):
 # }
 
 #tested - ok
+#android - ok
 @app.route('/registerfarmer', methods=['GET', 'POST'])
 def create_user():
     try:
         data = request.get_json()
+        if data==None:
+            data=request.form.to_dict()
         data['password'] = generate_password_hash(data['password'], method='sha256')
         conn = connect()
         return jsonify(create_farmer.create(conn, data))
@@ -75,11 +81,16 @@ def create_user():
         print(e)
         return jsonify({"message":"post required", "status":"fail","error":str(e)})
 
+#android - ok
 @app.route('/registerbuyer', methods=['POST'])
 def registerbuyer():
     data={}
     try:
         data = request.get_json()
+        if data==None:
+            data=request.form
+        date_string = datetime.now().strftime("%m/%d/%Y")
+        # date_string = "temp date"
         hashed_password = generate_password_hash(data['password'], method='sha256')
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
@@ -95,6 +106,9 @@ def registerbuyer():
 @app.route('/login_farmer',methods=['POST'])
 def login_farmer():
     auth = request.authorization
+    data = request.get_json()
+    if data==None:
+            data=request.form.to_dict()
     if not auth or not auth.username or not auth.password:
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
@@ -195,11 +209,15 @@ def buyer_details():
 
 
 #tested - ok
+#android - ok
 @app.route('/sell_produce',methods=['POST'])
 def sell_produce():
     try:
         data = request.get_json()
-        conn = connect()
+        if data==None:
+        	data=request.form
+        print(data)
+        conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         token = request.headers.get('token')
         dict_token = jwt.decode(token,app.config['SECRET_KEY'])
@@ -213,12 +231,18 @@ def sell_produce():
     return jsonify({'message' : 'Produce Added!'})
 
 
-#tested - ok #website ok
+#tested - ok
+#android - ok
 @app.route('/buy_produce',methods=['POST'])
 def buy_produce():
     try:
         data = request.get_json()
-        conn = connect()
+        if data==None:
+            data=request.form.to_dict()
+        print(type(data['quantity']))
+        print(data['quantity'])
+
+        conn = sqlite3.connect("datahouse.db")
         cursorObj = conn.cursor()
         token = request.headers.get('token')
         dict_token = jwt.decode(token,app.config['SECRET_KEY'])
@@ -250,6 +274,7 @@ def buy_produce():
     return jsonify({"STATUS" : "OK","message":"Bought successfully"})    
 
 #tested-ok
+#android - ok
 @app.route('/list_produce',methods=['POST'])
 def list_produce():
     try:
@@ -269,6 +294,7 @@ def list_produce():
 
 
 #tested - ok
+#android - ok
 @app.route('/displayfarmers',methods=['POST'])
 def displayfarmer():
     try:
@@ -287,10 +313,13 @@ def displayfarmer():
     return jsonify(data)
 
 #tested = ok
+#android - ok
 @app.route('/put_review',methods=['POST'])
 def put_review():
     try:
         data = request.get_json()
+        if data==None:
+            data=request.form
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         date_string = datetime.now().strftime("%m/%d/%Y")
@@ -316,7 +345,7 @@ def put_review():
     return jsonify({"VALS" : avg, 'message' : 'Review Added!'})
 
 
-#tested - ok
+#tested - ok #NOT NEEDED
 @app.route('/list_review',methods=['POST'])
 def list_reviews():
     data={}
@@ -340,6 +369,9 @@ def farmer_history():
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
         data = request.get_json()
+        if data==None:
+            data=request.form.to_dict()
+        print(data)
         cursorObj.execute("SELECT ID FROM BUSINESS_HISTORY WHERE PRODUCEID=(SELECT PRODUCEID FROM FARMER_PRODUCE WHERE FARMERUSERID ==?)",(data['farmer_id'],))
         vals = cursorObj.fetchall()
         li = []
