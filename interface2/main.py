@@ -94,7 +94,7 @@ def registerbuyer():
         hashed_password = generate_password_hash(data['password'], method='sha256')
         conn = sqlite3.connect('datahouse.db')
         cursorObj = conn.cursor()
-        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],datetime.datetime.utcnow(),data['phone_no']))
+        entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date_string,data['phone_no']))
         cursorObj.execute("INSERT INTO BUYER(BUYERID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
         conn.commit()
     except Exception as e:
@@ -135,7 +135,7 @@ def login_farmer():
             cursorObj.execute("SELECT FARMERID FROM FARMER WHERE PHONENUMBER ==?;",entities)
             # data = jwt.decode(token, app.config['SECRET_KEY'])
             farmerid = cursorObj.fetchone()[0]
-            token = jwt.encode({'farmerid' : farmerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'farmerid' : farmerid, 'exp' : datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
 
             return jsonify({'token' : token.decode('UTF-8')})
     except Exception as e:
@@ -173,7 +173,7 @@ def login_buyer():
             cursorObj.execute("SELECT BUYERID FROM BUYER WHERE PHONENUMBER ==?;",entities)
             # data = jwt.decode(token, app.config['SECRET_KEY'])
             buyerid = cursorObj.fetchone()[0] 
-            token = jwt.encode({'buyerid' : buyerid, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'buyerid' : buyerid, 'exp' : datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
 
             return jsonify({'token' : token.decode('UTF-8')})
     except Exception as e:
@@ -247,8 +247,8 @@ def buy_produce():
         token = request.headers.get('token')
         dict_token = jwt.decode(token,app.config['SECRET_KEY'])
         value = dict_token['buyerid']
-        date_string = datetime.datetime.now().strftime("%m/%d/%Y")
-        time_string = datetime.datetime.now().strftime("%H:%M:%S")
+        date_string = datetime.now().strftime("%m/%d/%Y")
+        time_string = datetime.now().strftime("%H:%M:%S")
         entities = ((str(uuid.uuid4()),value,data['produce_id'],data['quantity'],date_string,time_string))
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE PRODUCEID == ?;",(data['produce_id'],))
         tup = cursorObj.fetchone()  #previous quantity of produce
@@ -427,7 +427,7 @@ def buyer_history():
 def category_sort():
     try:
         data = request.get_json
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
         entities = ((data['category']))
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE WHERE TYPE ==? AND SOLD == False;",entities)
@@ -446,7 +446,7 @@ def category_sort():
 def price_sort():
     try:
         data = {}
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY COST;")
         vals = cursorObj.fetchall()
@@ -466,7 +466,7 @@ def price_sort():
 def review_sort():
     try:
         data = {}
-        conn = sqlite3.connect("datahouse.db")
+        conn = connect()
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM FARMER_PRODUCE ORDER BY QUALITY_REVIEW;")
         vals = cursorObj.fetchall()
@@ -539,7 +539,7 @@ def register_owner():
     try:
         data = request.get_json()
         hashed_password = generate_password_hash(data['password'], method='sha256')
-        conn = sqlite3.connect('datahouse.db')
+        conn = connect()
         cursorObj = conn.cursor()
         entities = ((str(uuid.uuid4()),data['fullname'],hashed_password,data['address'],data['aadhar'],data['imagelink'],date.today(),data['phone_no']))
         cursorObj.execute("INSERT INTO WAREHOUSE_OWNER(WAREHOUSE_OWNER_ID,FULLNAME,PASSWORD,ADDRESS,AADHAR,IMAGELINK,DATEJOINED,PHONENUMBER) VALUES(?,?,?,?,?,?,?,?);",entities)
@@ -554,7 +554,7 @@ def register_owner():
 def add_warehouse():
     try:
         data = request.get_json()
-        conn = sqlite3.connect('datahouse.db')
+        conn = connect()
         cursorObj = conn.cursor()
         u_id = str(uuid.uuid4())
         entities = ((u_id,data['owner_id'],data['available_size'],data['photo_url'],data['location'],data['cost']))
@@ -573,7 +573,7 @@ def add_warehouse():
 def list_warehouse():
     try:
         data = {}
-        conn = sqlite3.connect('datahouse.db')
+        conn = connect()
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM WAREHOUSE;")
         vals = cursorObj.fetchall()
@@ -598,7 +598,7 @@ def rent_warehouse():
         produce_quantity = data['produce_quantity']
         date_string = datetime.now().strftime("%m/%d/%Y")
         time_string = datetime.now().strftime("%H:%M:%S")
-        conn = sqlite3.connect('datahouse.db')
+        conn = connect()
         cursorObj = conn.cursor()
         entities = ((str(uuid.uuid4()),warehouse_id,farmer_id,produce_id,produce_quantity,date_string,time_string))
         cursorObj.execute("INSERT INTO WAREHOUSE_TRANSACTION(TRANSACTION_ID,WAREHOUSE_ID,FARMER_ID,PRODUCE_ID,PRODUCE_QUANTITY,DATE,TIME) VALUES(?,?,?,?,?,?,?);",entities)
@@ -634,7 +634,7 @@ def search_warehouse():
     try:
         data = request.get_json()
         user_loc_lat , user_loc_lon = data['latitude'],data['longitude']   
-        conn = sqlite3.connect('datahouse.db')
+        conn = connect()
         cursorObj = conn.cursor()
         cursorObj.execute("SELECT * FROM WAREHOUSE_ADDRESS;")
         warehouses = cursorObj.fetchall()
