@@ -628,7 +628,7 @@ def farmer_details():
         cursorObj = conn.cursor()
         token = request.headers.get('token')
         dict_token = jwt.decode(token,app.config['SECRET_KEY'])
-        value = dict_token['buyerid']
+        value = dict_token['farmerid']
         cursorObj.execute("SELECT * FROM FARMER WHERE FARMERID ==?;",(value,))
         user_data = cursorObj.fetchone()
         new_dict={}
@@ -636,7 +636,7 @@ def farmer_details():
         new_dict['fullname'] = user_data['FULLNAME']
         new_dict['address'] = user_data['ADDRESS']
         new_dict['imagelink'] = user_data['IMAGELINK']
-        new_dict['imagelink'] = user_data['AADHAR']
+        new_dict['aadhar'] = user_data['AADHAR']
         new_dict['datejoined'] = user_data['DATEJOINED']
         new_dict['phonenumber'] = user_data['PHONENUMBER']
         new_dict['status'] = 'OK'

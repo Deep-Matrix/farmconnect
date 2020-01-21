@@ -31,15 +31,17 @@
 		<!--===============================================================================================-->
 		</head>
 <body>
-	
+	<div >
+	<h2><a href=" {{ url_for('logout') }}" class="btn btn-outline-dark">Logout</a></h2>
+	</div>
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
+				
 				<div class="login100-pic js-tilt" data-tilt>
-					<img src="{{ url_for('static', filename='images/img-01.jpg')}}" alt="IMG">
-					
+					<img src="{{ url_for('static', filename='images/img-01.jpg')}}" alt="IMG">			
 				</div>
-
+		
 				<form class="login100-form validate-form" method="POST" novalidate>
 					{{ form.hidden_tag() }}
 					<span class="login100-form-title">

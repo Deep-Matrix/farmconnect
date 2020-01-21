@@ -4,6 +4,20 @@ from app.forms import LoginForm, SignUpForm, AddProduceForm, CostUpdateForm
 import requests
 import json
 
+
+def getSession():
+    data = {}
+    if isLoggedIn:
+        data['address'] = session['address']
+        data['datejoined'] = session['datejoined']
+        data['fullname'] = session['fullname']
+        data['imagelink'] = session['imagelink']
+        data['aadhar'] = session['aadhar']
+        data['phonenumber'] = session['phonenumber']
+        data['userid'] = session['userid']
+    return data
+
+
 def isLoggedIn():
     loggedIn = False
     try:
@@ -11,6 +25,13 @@ def isLoggedIn():
         headers = {'token': data}
         r = requests.post("http://127.0.0.1:5000/farmer_details",headers=headers).json()
         print(r)
+        session['address'] = r['address']
+        session['datejoined'] = r['datejoined']
+        session['fullname'] = r['fullname']
+        session['imagelink'] = r['imagelink']
+        session['aadhar'] = r['aadhar']
+        session['phonenumber'] = r['phonenumber']
+        session['userid'] = r['userid']
         loggedIn = True    
     except Exception as e:
         loggedIn = False
@@ -19,21 +40,24 @@ def isLoggedIn():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        r = requests.post('http://127.0.0.1:5000/login_farmer', auth = (username, password))
-        print("#########################################" + r.text)
-        if r.text == "Could not verify":
-            return redirect('/login')
-        else:
-            print(r.text)
-            data = json.loads(r.text)
-            session['token'] = data['token']
-            print(session['token'])
+    if not isLoggedIn():
+        form = LoginForm()
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+            r = requests.post('http://127.0.0.1:5000/login_farmer', auth = (username, password))
+            print("#########################################" + r.text)
+            if r.text == "Could not verify":
+                return redirect('/login')
+            else:
+                print(r.text)
+                data = json.loads(r.text)
+                session['token'] = data['token']
+                print(session['token'])
             return redirect('/farmer_history')
-    return render_template('login.html', title='Sign In', form=form, error='Invalid Credentials')
+        return render_template('login.html', title='Sign In', form=form, error='Invalid Credentials')
+    else:
+        return redirect('/')
 
 # @app.route('/')
 # @app.route('/index')
@@ -50,8 +74,9 @@ def login():
 #             arrayt.append(data[str(i)])
         
 #         return render_template('index.html', title='Home Page', produce=arrayt)
-#     return redirect('/login')
+    # return redirect('/login')
 
+@app.route('/')
 @app.route('/farmer_history')
 def index():
     if isLoggedIn():
@@ -66,22 +91,9 @@ def index():
         print(arrayt)
         return render_template('index.html', title='Home Page', transactions=arrayt)
     return redirect('/login')
-
-
-# @app.route('/produce/<id>')
-# def produceinformation(id):
-#     data = {}
-#     user = {}
-#     try:
-#         data = requests.get("http://127.0.0.1:7000/getproduce?id="+str(id)).json()
-#     except Exception as e:
-#         print(e)
-#     return render_template('produce.html', title=str(id)+" - Details", product=data, user=session)
         
 @app.route('/signup', methods = ['GET','POST'])
 def signup():
-    # if isLoggedIn:
-    #     return redirect('/')
     form = SignUpForm()
     if form.validate_on_submit():
         password = form.password.data
@@ -150,3 +162,9 @@ def cost_update():
         else:
             return render_template('cost_update.html', form=form, title='Join US', error=response['error'])
     return render_template('cost_update.html', form=form, title='Join US')
+
+@app.route('/logout')
+def logout():
+    if isLoggedIn():
+        session.clear()
+    return redirect('/')

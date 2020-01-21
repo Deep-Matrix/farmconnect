@@ -7,7 +7,7 @@ import json
 def getSession():
     data = {}
     if isLoggedIn:
-        data['addres'] = session['address']
+        data['address'] = session['address']
         data['datejoined'] = session['datejoined']
         data['fullname'] = session['fullname']
         data['imagelink'] = session['imagelink']
@@ -117,6 +117,7 @@ def signup():
         if response['status'] == "OK":
             return redirect('/login')
         else:
+            print("Error!!")
             return render_template('signup.html', form=form, title='Join US', error='Some Error Occurred')
     return render_template('signup.html', form=form, title='Join US')
 
